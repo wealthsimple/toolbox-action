@@ -919,13 +919,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.hello = exports.run = void 0;
 const core = __importStar(__nccwpck_require__(186));
 function run() {
     core.info('Hello from actions-toolbox');
 }
 exports.run = run;
-//# sourceMappingURL=index.js.map
+function hello() {
+    return "hi there";
+}
+exports.hello = hello;
+
 
 /***/ }),
 
