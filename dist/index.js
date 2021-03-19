@@ -1647,12 +1647,9 @@ exports.lint = __importStar(__nccwpck_require__(831));
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
-const core_1 = __nccwpck_require__(186);
 const bundle_1 = __nccwpck_require__(140);
 async function run() {
-    const out = await bundle_1.run(['rubocop']);
-    core_1.info(`rubocop returned: ${out}`);
-    return out;
+    return bundle_1.run(['rubocop']);
 }
 exports.run = run;
 
