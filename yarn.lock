@@ -7,7 +7,14 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@actions/core/-/core-1.2.6.tgz#a78d49f41a4def18e88ce47c2cac615d5694bf09"
   integrity sha512-ZQYitnqiyBc3D+k7LsgSBmMDVkOVidaagDG7j3fOym77jNunWRuYx7VSHa9GNfFZh+zh61xsCjRj4JxMZlDqTA==
 
-"@actions/io@^1.0.2":
+"@actions/exec@^1.0.4":
+  version "1.0.4"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@actions/exec/-/exec-1.0.4.tgz#99d75310e62e59fc37d2ee6dcff6d4bffadd3a5d"
+  integrity sha512-4DPChWow9yc9W3WqEbUj8Nr86xkpyE29ZzWjXucHItclLbEW6jr80Zx4nqv18QL6KK65+cifiQZXvnqgTV6oHw==
+  dependencies:
+    "@actions/io" "^1.0.1"
+
+"@actions/io@^1.0.1", "@actions/io@^1.0.2":
   version "1.0.2"
   resolved "https://nexus.iad.w10external.com/repository/npm/@actions/io/-/io-1.0.2.tgz#2f614b6e69ce14d191180451eb38e6576a6e6b27"
   integrity sha512-J8KuFqVPr3p6U8W93DOXlXW6zFvrQAJANdS+vw0YhusLIq+bszW8zmK2Fh1C2kDPX8FMvwIl1OUcFgvJoXLbAg==
@@ -939,12 +946,13 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.27.0.tgz#c0cfeebb0bebb56052719efa4a0ecc090a932c76"
   integrity sha512-DllIJQapnU2YwewIhh/4dYesmMQw3h2cFtabECc/zSJHqUbNa0eJuEkRa6DXbZvh1YPWBtYQoPV17NlDpBw1Vw==
 
-"@wealthsimple/actions-toolbox@1.1.1":
-  version "1.1.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.1.1.tgz#48e58e57c6f50dd7c383949879daca3ae8393db5"
-  integrity sha512-24I0YwEeLVandmh/5EDl3EP7+mM7053ykv5KnHQwOGzAYejb9m4a00NplJv6rU5W5JdRSLsXssCNMBc/gjww2g==
+"@wealthsimple/actions-toolbox@1.4.1":
+  version "1.4.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.4.1.tgz#f720ba29661b659ee170f9ae79f523ebf52110a0"
+  integrity sha512-CNx2Sz/CDhtPwzDoLiINikKDk4DfdHfrsC0RtapBifQj02ITMBmnaUWFczXVdxndgZ+ewxFDd2ijukIpnNp+eQ==
   dependencies:
     "@actions/core" "^1.2.6"
+    "@actions/exec" "^1.0.4"
 
 JSONStream@^1.0.4, JSONStream@^1.3.4, JSONStream@^1.3.5:
   version "1.3.5"
