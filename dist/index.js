@@ -1594,7 +1594,7 @@ exports.ruby = __importStar(__nccwpck_require__(467));
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.buildCommand = exports.run = void 0;
+exports.isBundled = exports.buildCommand = exports.run = void 0;
 const exec_1 = __nccwpck_require__(514);
 async function run(commandArgs) {
     return exec_1.exec('bundle', buildCommand(commandArgs));
@@ -1604,6 +1604,10 @@ function buildCommand(commandArgs) {
     return ['exec'].concat(commandArgs);
 }
 exports.buildCommand = buildCommand;
+async function isBundled(gemName) {
+    return (await exec_1.exec('bundle info', [gemName])) == 0;
+}
+exports.isBundled = isBundled;
 
 
 /***/ }),
@@ -1633,9 +1637,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.lint = exports.bundle = void 0;
+exports.test = exports.lint = exports.bundle = void 0;
 exports.bundle = __importStar(__nccwpck_require__(140));
 exports.lint = __importStar(__nccwpck_require__(831));
+exports.test = __importStar(__nccwpck_require__(783));
 
 
 /***/ }),
@@ -1651,6 +1656,42 @@ const bundle_1 = __nccwpck_require__(140);
 async function run() {
     return bundle_1.run(['rubocop']);
 }
+exports.run = run;
+
+
+/***/ }),
+
+/***/ 783:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = exports.command = exports.environment = void 0;
+const exec_1 = __nccwpck_require__(514);
+const DATADOG_CONFIGURATION = Object.freeze({
+    DATADOG_CI_ENABLED: 'true',
+    DD_INTEGRATION_RSPEC_ENABLED: 'true',
+    DD_TRACE_RSPEC_ANALYTICS_ENABLED: 'false',
+});
+function environment({ isDatadogEnabled }, environment) {
+    const additions = isDatadogEnabled ? DATADOG_CONFIGURATION : {};
+    return Object.assign({}, environment, additions);
+}
+exports.environment = environment;
+const RSPEC_ARGUMENTS = '--format progress --order rand';
+function command({ isKnapsackEnabled }) {
+    if (isKnapsackEnabled) {
+        return `bundle exec rake "knapsack:rspec[${RSPEC_ARGUMENTS}]"`;
+    }
+    else {
+        return `bundle exec rspec ${RSPEC_ARGUMENTS}`;
+    }
+}
+exports.command = command;
+const run = async (configuration) => exec_1.exec(command(configuration), [], {
+    env: environment(configuration, process.env),
+});
 exports.run = run;
 
 
