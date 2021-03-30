@@ -5,6 +5,12 @@ inputs:
   script:
     required: true
     description: The script to run
+  sonarqube_host:
+    required: false
+    description: The SonarQube hostname
+  sonarqube_token:
+    required: false
+    description: The SonarQube token
 outputs:
   result:
     description: The return value of the script, stringified with `JSON.stringify`
