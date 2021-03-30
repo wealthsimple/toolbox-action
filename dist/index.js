@@ -4668,12 +4668,27 @@ exports.test = __importStar(__nccwpck_require__(783));
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.runBrakeman = exports.runRubocop = exports.run = void 0;
 const bundle_1 = __nccwpck_require__(140);
 async function run() {
-    return bundle_1.run(['rubocop']);
+    return Promise.all([
+        runRubocop(),
+        runBrakeman(),
+    ]);
 }
 exports.run = run;
+async function runRubocop() {
+    return bundle_1.run(['rubocop']);
+}
+exports.runRubocop = runRubocop;
+async function runBrakeman() {
+    const brakemanAvailable = await bundle_1.isBundled('brakeman');
+    if (brakemanAvailable) {
+        return bundle_1.run(['brakeman', '-A', '-o', '$HOME/brakeman/report.html', '-o', '/dev/stdout', '--color', '-x', 'CheckForceSSL']);
+    }
+    return Promise.resolve(0);
+}
+exports.runBrakeman = runBrakeman;
 
 
 /***/ }),
@@ -4811,8 +4826,8 @@ async function setup() {
 }
 exports.setup = setup;
 async function buildConfiguration() {
-    const eventName = process.env.GITHUB_EVENT;
-    assert_1.ok(eventName, 'Cannot read event name from GITHUB_EVENT');
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    assert_1.ok(eventName, 'Cannot read event name from GITHUB_EVENT_NAME');
     const ref = process.env.GITHUB_REF;
     assert_1.ok(ref, 'Cannot read ref from GITHUB_REF');
     const host = core.getInput('sonarqube_host', { required: true });
