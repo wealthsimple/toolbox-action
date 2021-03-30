@@ -4671,10 +4671,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runBrakeman = exports.runRubocop = exports.run = void 0;
 const bundle_1 = __nccwpck_require__(140);
 async function run() {
-    return Promise.all([
-        runRubocop(),
-        runBrakeman(),
-    ]);
+    return Promise.all([runRubocop(), runBrakeman()]);
 }
 exports.run = run;
 async function runRubocop() {
@@ -4684,7 +4681,17 @@ exports.runRubocop = runRubocop;
 async function runBrakeman() {
     const brakemanAvailable = await bundle_1.isBundled('brakeman');
     if (brakemanAvailable) {
-        return bundle_1.run(['brakeman', '-A', '-o', '$HOME/brakeman/report.html', '-o', '/dev/stdout', '--color', '-x', 'CheckForceSSL']);
+        return bundle_1.run([
+            'brakeman',
+            '-A',
+            '-o',
+            '$HOME/brakeman/report.html',
+            '-o',
+            '/dev/stdout',
+            '--color',
+            '-x',
+            'CheckForceSSL',
+        ]);
     }
     return Promise.resolve(0);
 }
@@ -4769,8 +4776,9 @@ function latestReleaseUrl(response) {
 }
 exports.latestReleaseUrl = latestReleaseUrl;
 function parameters(configuration) {
-    const { defaultBranch, ref, repository, token, workflow } = configuration;
+    const { defaultBranch, host, ref, repository, token, workflow, } = configuration;
     const basicParameters = [
+        ['host.url', host],
         ['login', token],
         ['links.homepage', `https://github.com/${repository}`],
         ['links.scm', `https://github.com/${repository}.git`],
