@@ -4686,9 +4686,6 @@ async function runBrakeman() {
             '-A',
             '-o',
             '$HOME/brakeman/report.html',
-            '-o',
-            '/dev/stdout',
-            '--color',
             '-x',
             'CheckForceSSL',
         ]);
