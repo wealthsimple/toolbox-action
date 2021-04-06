@@ -1,16 +1,28 @@
+---
 name: Pipeline
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-
+  - push
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: ./
+      - uses: actions/setup-node@v2
         with:
-          script: |
-            toolbox.run();
+          node-version: '12'
+          always-auth: true
+          registry-url: ${{ secrets.ACTIONS_NEXUS_NPM_ENDPOINT }}
+      - name: Install dependencies
+        run: |
+          npm config set _auth "${{ secrets.ACTIONS_NEXUS_NPM_READ_TOKEN }}"
+          yarn install
+      - name: Release
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          git config --global user.email "${{ secrets.ACTIONS_GITHUB_EMAIL }}"
+          git config --global user.name "${{ secrets.ACTIONS_GITHUB_USERNAME }}"
+
+          yarn run semantic-release --branches main
+
+          git tag --force --annotate v1 --message "The latest v1 release [skip ci]"
+          git push origin v1
