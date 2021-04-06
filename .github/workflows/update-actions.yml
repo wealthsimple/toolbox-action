@@ -22,15 +22,18 @@ jobs:
         run: yarn install
       - name: Commit latest actions-toolbox
         run: |
-          yarn add @wealthsimple/actions-toolbox@${{ github.event.inputs.version }}
-          yarn build
-
           git config --global user.email "${{ secrets.ACTIONS_GITHUB_EMAIL }}"
           git config --global user.name "${{ secrets.ACTIONS_GITHUB_USERNAME }}"
 
-          git commit -am "feat: update actions-toolbox to ${{ github.event.inputs.version }}"
+          yarn add @wealthsimple/actions-toolbox@${{ github.event.inputs.version }}
+          yarn build
+
+          git commit --all --message "feat: update actions-toolbox to ${{ github.event.inputs.version }}"
           git push origin main
 
           yarn run semantic-release --branches main
+
+          git tag --force --annotate v1 --message "The latest v1 release [skip ci]"
+          git push origin v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
