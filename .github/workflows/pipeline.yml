@@ -25,6 +25,6 @@ jobs:
           yarn run semantic-release --branches main
 
           git tag --force --annotate v1 --message "The latest v1 release [skip ci]"
-          git push origin v1
+          git push --force origin v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
