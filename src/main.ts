@@ -7,6 +7,8 @@ process.on('unhandledRejection', handleError);
 main().catch(handleError);
 
 async function main(): Promise<void> {
+  toolbox.version();
+
   const script = core.getInput('script', { required: true });
   const result = await callAsyncFunction(
     { require: require, core, io, toolbox },
