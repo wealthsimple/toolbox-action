@@ -1044,22 +1044,22 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.2.tgz#cf0c4f7e4c980bc849eaf115851f2440cd62c8a5"
   integrity sha512-2ZBPviK9nFHzymu9POKGz50BRGGBIw7a8VcjgH73Xu2H4IvZx3KS0Qk/SS7S/N6iAalAGGxLSwFM1obeBGWXGg==
 
-"@wealthsimple/actions-toolbox@1.11.4":
-  version "1.11.4"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.11.4.tgz#4b74f424bb9408b4d0211fcac0ba79896fba7644"
-  integrity sha512-PG9pfz8GqTPYOpOCCo7Vn27Axe2AHyflng9x22M3dzBeJ75Cj+0ELFYsUEtkVDAZwCxPJ8NtYBfxiVTSnRqTzQ==
+"@wealthsimple/actions-toolbox@1.11.5":
+  version "1.11.5"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.11.5.tgz#f697abe868e42aba665fb9835be70422e488b0d3"
+  integrity sha512-EYZPkRSObScCu50gY2oIyi+wsocGa+1Uy4p8lW7sYEmsluRYXu0eyrS1sEE9phoDgAEHy1cpZ6RQTQB/v/NUkw==
   dependencies:
     "@actions/core" "^1.2.6"
     "@actions/exec" "^1.0.4"
     "@actions/http-client" "^1.0.9"
     "@actions/io" "^1.0.2"
     "@actions/tool-cache" "^1.6.1"
-    "@wealthsimple/transinator" "^3.1.1"
+    "@wealthsimple/transinator" "^3.1.2"
 
-"@wealthsimple/transinator@^3.1.1":
-  version "3.1.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.1.tgz#c7ee367400ecb3d947f3ad8dfeebf52bee4cf74b"
-  integrity sha512-YU65hHb02ncPmODnPhuruZ46XQmtl1DAUWgKM6WB8L9RkdVW736d6RQt5iPYK2M3BnNuCP7Cmmevxf8cEcN/jQ==
+"@wealthsimple/transinator@^3.1.2":
+  version "3.1.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.2.tgz#458f86b81715876ec395f3fe060d3d55e9ba44b9"
+  integrity sha512-HRIkwWVwYML45l0KZb9fvodD8kWs+2Hp7IdAJKoZEGgPze1+nnIg+GPow4Z386ewjz0I51nNHAfV4QqT1lo4Fg==
   dependencies:
     commander "^6.2.1"
     flat "^5.0.2"
