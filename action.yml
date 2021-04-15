@@ -1,53 +1,53 @@
 name: Wealthsimple Toolbox Script
-description: Run scripts using Wealthsimple's Actions Toolbox (internal only)
+description: Run scripts using Wealthsimple's Actions Toolbox ([])
 author: Wealthsimple
 inputs:
   script:
     required: true
     description: The script to run
-  sonarqube_host:
-    required: false
-    description: The SonarQube hostname
-  sonarqube_token:
-    required: false
-    description: The SonarQube token
+
   aws_region:
     required: false
     description: The AWS region
+  contribsys_rubygems_login:
+    required: false
+    description: Login for ContribSys' RubyGems server, for installing Sidekiq
   docker_build_path:
     required: false
     description: Path to the Docker context
   dockerfile_path:
     required: false
     description: Path to the Dockerfile to build
-  image_name:
-    required: false
-    description: Name of the Docker image to build
-  contribsys_rubygems_login:
-    required: false
-    description: Login for ContribSys' RubyGems server, for installing Sidekiq
-  nexus_rubygems_login:
-    required: false
-    description: Login for Nexus RubyGems server
-  nexus_npm_url:
-    required: false
-    description: URL for Nexus npm registry
-  nexus_npm_token:
-    required: false
-    description: Token for Nexus npm registry
-  lint_yaml:
-    required: false
-    description: If true, run `yamllint` on project's YAML files
   enable_datadog:
     required: false
     description: Enable Datadog tracing for tests
   enable_knapsack:
     required: false
     description: Enable Knapsack for RSpec tests
+  image_name:
+    required: false
+    description: Name of the Docker image to build
+  lint_yaml:
+    required: false
+    description: If true, run `yamllint` on project's YAML files
   nexus_gem_credentials_file:
     required: false
     description: Nexus credentials for publishing ruby gems
-
+  nexus_npm_token:
+    required: false
+    description: Token for Nexus npm registry
+  nexus_npm_url:
+    required: false
+    description: URL for Nexus npm registry
+  nexus_rubygems_login:
+    required: false
+    description: Login for Nexus RubyGems server
+  sonarqube_host:
+    required: false
+    description: The SonarQube hostname
+  sonarqube_token:
+    required: false
+    description: The SonarQube token
 outputs:
   result:
     description: The return value of the script, stringified with `JSON.stringify`
