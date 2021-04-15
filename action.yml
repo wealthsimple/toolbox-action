@@ -44,6 +44,9 @@ inputs:
   enable_knapsack:
     required: false
     description: Enable Knapsack for RSpec tests
+  nexus_gem_credentials_file:
+    required: false
+    description: Nexus credentials for publishing ruby gems
 
 outputs:
   result:
