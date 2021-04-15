@@ -6680,12 +6680,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.transinator = exports.sonarqube = exports.ruby = exports.docker = exports.run = void 0;
+exports.transinator = exports.sonarqube = exports.ruby = exports.docker = exports.version = exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
+const package_json_1 = __nccwpck_require__(3523);
 function run() {
     core.info('Hello from actions-toolbox');
 }
 exports.run = run;
+function version() {
+    core.info(`actions-toolbox v${package_json_1.version}`);
+}
+exports.version = version;
 exports.docker = __importStar(__nccwpck_require__(2212));
 exports.ruby = __importStar(__nccwpck_require__(467));
 exports.sonarqube = __importStar(__nccwpck_require__(6275));
@@ -6783,7 +6788,7 @@ const fs = __importStar(__nccwpck_require__(5747));
 const io = __importStar(__nccwpck_require__(1998));
 const path = __importStar(__nccwpck_require__(5622));
 async function run() {
-    const lintYaml = core.getInput('lint_yaml', { required: false }) == 'true';
+    const lintYaml = core.getInput('lint_yaml', { required: false }) === 'true';
     if (lintYaml) {
         return Promise.all([runRubocop(), runBrakeman(), runYamllint()]);
     }
@@ -6849,12 +6854,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
+const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
-const assert_1 = __nccwpck_require__(2357);
 const git = __importStar(__nccwpck_require__(9390));
 async function run(workingDirectory) {
-    const nexusGemCredentials = process.env.NEXUS_GEM_CREDENTIALS_FILE;
-    assert_1.ok(nexusGemCredentials, 'Cannot read NEXUS_GEM_CREDENTIALS_FILE');
+    const nexusGemCredentials = core.getInput('nexus_gem_credentials_file', {
+        required: true,
+    });
     await git.setupUser();
     const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
     return exec.exec('bundle', ['exec', 'rake', 'release'], {
@@ -44558,6 +44564,14 @@ if (typeof window === "undefined" || window === null) {
 
 module.exports = Yaml;
 
+
+/***/ }),
+
+/***/ 3523:
+/***/ ((module) => {
+
+"use strict";
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.1","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.1"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
 
 /***/ }),
 
