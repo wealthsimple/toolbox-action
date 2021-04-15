@@ -6780,7 +6780,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runYamllint = exports.runBrakeman = exports.runRubocop = exports.run = void 0;
+exports.runYamllint = exports.runBrakeman = exports.runRubocop = exports.runBundleAudit = exports.run = void 0;
 const bundle = __importStar(__nccwpck_require__(5140));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
@@ -6790,11 +6790,22 @@ const path = __importStar(__nccwpck_require__(5622));
 async function run() {
     const lintYaml = core.getInput('lint_yaml', { required: false }) === 'true';
     if (lintYaml) {
-        return Promise.all([runRubocop(), runBrakeman(), runYamllint()]);
+        return Promise.all([
+            runRubocop(),
+            runBrakeman(),
+            runBundleAudit(),
+            runYamllint(),
+        ]);
     }
-    return Promise.all([runRubocop(), runBrakeman()]);
+    return Promise.all([runRubocop(), runBrakeman(), runBundleAudit()]);
 }
 exports.run = run;
+async function runBundleAudit(workingDirectory) {
+    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
+    await exec.exec('bundle exec bundle-audit update', [], { cwd });
+    return await exec.exec('bundle exec bundle-audit check', [], { cwd });
+}
+exports.runBundleAudit = runBundleAudit;
 async function runRubocop(workingDirectory) {
     const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
     return exec.exec('bundle exec rubocop', [], { cwd });
@@ -44576,7 +44587,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.3","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.1"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.4","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.1"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
 
 /***/ }),
 
