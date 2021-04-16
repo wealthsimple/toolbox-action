@@ -7164,7 +7164,7 @@ const sync = async () => {
     await setup();
     await actions_1.sync({
         dryRun: false,
-        debugOutput: true,
+        debugOutput: false,
         skipBadResourceFiles: true,
         destLangCode: DEST_LANG_CODE,
     });
@@ -7342,31 +7342,42 @@ var sync = function (_a) {
                     _b.label = 5;
                 case 5:
                     logger_1.logger.info(dryRunTag + "Pulling latest " + destLangCode + " changes from Transifex");
-                    if (!!dryRun) return [3 /*break*/, 7];
+                    if (!!dryRun) return [3 /*break*/, 9];
                     return [4 /*yield*/, transifex_1.pullDestStrings(destLangCode, debugOutput)];
                 case 6:
                     _b.sent();
-                    _b.label = 7;
+                    logger_1.logger.info('Detected the following changes in transifex');
+                    return [4 /*yield*/, git_1.printLocalChanges()];
                 case 7:
+                    _b.sent();
+                    return [4 /*yield*/, string_table_1.loadStringTables(destLangCode, resources)];
+                case 8:
+                    headStringTables = _b.sent();
+                    _b.label = 9;
+                case 9:
                     logger_1.logger.info(dryRunTag + "Applying most recent git changes on top:");
                     logger_1.logger.info(JSON.stringify(localChangeSet, null, 2));
                     return [4 /*yield*/, changeset_1.applyChangeset(localChangeSet, destLangCode, resources, headStringTables)];
-                case 8:
-                    _b.sent();
-                    logger_1.logger.info(dryRunTag + "Pushing merged resource changes to Transifex");
-                    if (!!dryRun) return [3 /*break*/, 10];
-                    return [4 /*yield*/, transifex_1.pushDestStrings(destLangCode, debugOutput, skipBadResourceFiles)];
-                case 9:
-                    _b.sent();
-                    _b.label = 10;
                 case 10:
-                    logger_1.logger.info(dryRunTag + "Committing sync results");
-                    if (!!dryRun) return [3 /*break*/, 12];
-                    return [4 /*yield*/, git_1.addAndCommit()];
+                    _b.sent();
+                    logger_1.logger.info('Merged local and transifex changes:');
+                    return [4 /*yield*/, git_1.printLocalChanges()];
                 case 11:
                     _b.sent();
-                    _b.label = 12;
-                case 12: return [2 /*return*/];
+                    logger_1.logger.info(dryRunTag + "Pushing merged resource changes to Transifex");
+                    if (!!dryRun) return [3 /*break*/, 13];
+                    return [4 /*yield*/, transifex_1.pushDestStrings(destLangCode, debugOutput, skipBadResourceFiles)];
+                case 12:
+                    _b.sent();
+                    _b.label = 13;
+                case 13:
+                    logger_1.logger.info(dryRunTag + "Committing sync results");
+                    if (!!dryRun) return [3 /*break*/, 15];
+                    return [4 /*yield*/, git_1.addAndCommit()];
+                case 14:
+                    _b.sent();
+                    _b.label = 15;
+                case 15: return [2 /*return*/];
             }
         });
     });
@@ -7567,19 +7578,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.addAndCommit = exports.restoreRevision = exports.checkOutLastSyncedRevision = void 0;
-var child_process_1 = __nccwpck_require__(3129);
-var util_1 = __importDefault(__nccwpck_require__(1669));
+exports.printLocalChanges = exports.addAndCommit = exports.restoreRevision = exports.checkOutLastSyncedRevision = void 0;
+var shell_1 = __nccwpck_require__(2479);
 var logger_1 = __nccwpck_require__(3621);
-var exec = util_1.default.promisify(child_process_1.exec);
-var run = function (command) {
-    logger_1.logger.info("run: " + command);
-    return exec(command);
-};
 var checkOutLastSyncedRevision = function () { return __awaiter(void 0, void 0, void 0, function () {
     var lastRevision, stdout, e_1;
     return __generator(this, function (_a) {
@@ -7589,7 +7591,7 @@ var checkOutLastSyncedRevision = function () { return __awaiter(void 0, void 0, 
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, run("git describe --tags --abbrev=0 --match \"Transinator-*\"")];
+                return [4 /*yield*/, shell_1.run("git describe --tags --abbrev=0 --match \"Transinator-*\"")];
             case 2:
                 stdout = (_a.sent()).stdout;
                 lastRevision = stdout;
@@ -7598,7 +7600,7 @@ var checkOutLastSyncedRevision = function () { return __awaiter(void 0, void 0, 
                 e_1 = _a.sent();
                 logger_1.logger.info('No transinator tags found. Using HEAD^ as the last revision');
                 return [3 /*break*/, 4];
-            case 4: return [4 /*yield*/, run("git checkout " + (lastRevision !== null && lastRevision !== void 0 ? lastRevision : 'HEAD^'))];
+            case 4: return [4 /*yield*/, shell_1.run("git checkout " + (lastRevision !== null && lastRevision !== void 0 ? lastRevision : 'HEAD^'))];
             case 5:
                 _a.sent();
                 return [2 /*return*/];
@@ -7609,7 +7611,7 @@ exports.checkOutLastSyncedRevision = checkOutLastSyncedRevision;
 var restoreRevision = function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, run('git checkout -')];
+            case 0: return [4 /*yield*/, shell_1.run('git checkout -')];
             case 1:
                 _a.sent();
                 return [2 /*return*/];
@@ -7621,29 +7623,29 @@ var addAndCommit = function () { return __awaiter(void 0, void 0, void 0, functi
     var status;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, run('git status --porcelain')];
+            case 0: return [4 /*yield*/, shell_1.run('git status --porcelain')];
             case 1:
                 status = (_a.sent()).stdout;
                 if (!status) {
                     logger_1.logger.info('Nothing to commit, skipping.');
                     return [2 /*return*/];
                 }
-                return [4 /*yield*/, run('git config user.email "noreply@wealthsimple.com"')];
+                return [4 /*yield*/, shell_1.run('git config user.email "noreply@wealthsimple.com"')];
             case 2:
                 _a.sent();
-                return [4 /*yield*/, run('git config user.name "Transinator"')];
+                return [4 /*yield*/, shell_1.run('git config user.name "Transinator"')];
             case 3:
                 _a.sent();
-                return [4 /*yield*/, run('git add --all')];
+                return [4 /*yield*/, shell_1.run('git add --all')];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, run("git commit -m 'fix(translations): Sync with Transifex'")];
+                return [4 /*yield*/, shell_1.run("git commit -m 'fix(translations): Sync with Transifex'")];
             case 5:
                 _a.sent();
-                return [4 /*yield*/, run("git tag Transinator-$(git rev-parse HEAD)")];
+                return [4 /*yield*/, shell_1.run("git tag Transinator-$(git rev-parse HEAD)")];
             case 6:
                 _a.sent();
-                return [4 /*yield*/, run("git push --tags origin master")];
+                return [4 /*yield*/, shell_1.run("git push --tags origin master")];
             case 7:
                 _a.sent();
                 return [2 /*return*/];
@@ -7651,6 +7653,17 @@ var addAndCommit = function () { return __awaiter(void 0, void 0, void 0, functi
     });
 }); };
 exports.addAndCommit = addAndCommit;
+var printLocalChanges = function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, shell_1.run('git diff')];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+exports.printLocalChanges = printLocalChanges;
 
 
 /***/ }),
@@ -7728,6 +7741,102 @@ exports.logger = winston_1.default;
 exports.logger.add(new winston_1.transports.Console({
     format: winston_1.format.combine(winston_1.format.colorize({ all: true }), winston_1.format.simple()),
 }));
+
+
+/***/ }),
+
+/***/ 2479:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(7958), exports);
+
+
+/***/ }),
+
+/***/ 7958:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+var child_process_1 = __nccwpck_require__(3129);
+var util_1 = __importDefault(__nccwpck_require__(1669));
+var logger_1 = __nccwpck_require__(3621);
+// Logs a shell command and runs it.
+var exec = util_1.default.promisify(child_process_1.exec);
+var run = function (command) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, stdout, stderr;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                logger_1.logger.info("run: " + command.trim());
+                return [4 /*yield*/, exec(command)];
+            case 1:
+                _a = _b.sent(), stdout = _a.stdout, stderr = _a.stderr;
+                if (stdout) {
+                    logger_1.logger.info("\t" + stdout.trim().split('\n').join('\n\t'));
+                }
+                if (stderr) {
+                    logger_1.logger.warn("\t" + stderr.trim().split('\n').join('\n\t'));
+                }
+                return [2 /*return*/, { stdout: stdout.trim(), stderr: stderr.trim() }];
+        }
+    });
+}); };
+exports.run = run;
 
 
 /***/ }),
@@ -7939,13 +8048,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.pushDestStrings = exports.pullDestStrings = exports.pushSourceStrings = exports.loadTransifexConfig = void 0;
-var child_process_1 = __nccwpck_require__(3129);
 var lodash_1 = __importDefault(__nccwpck_require__(250));
 var fs_1 = __importDefault(__nccwpck_require__(5747));
 var ini_1 = __importDefault(__nccwpck_require__(8885));
-var util_1 = __importDefault(__nccwpck_require__(1669));
 var logger_1 = __nccwpck_require__(3621);
-var exec = util_1.default.promisify(child_process_1.exec);
+var shell_1 = __nccwpck_require__(2479);
 /**
  * Module that handles transifex-specific stuff.  In particular:
  *   * parsing your project's .tx/config to find language resource files,
@@ -7992,7 +8099,7 @@ var loadTransifexConfig = function (destLangCode) {
 };
 exports.loadTransifexConfig = loadTransifexConfig;
 var pushSourceStrings = function (debugOutput, skipBadResourceFiles) {
-    return exec("tx " + (debugOutput ? '--debug' : '') + " push -s --no-interactive " + (skipBadResourceFiles ? '--skip' : ''));
+    return shell_1.run("tx " + (debugOutput ? '--debug' : '') + " push -s --no-interactive " + (skipBadResourceFiles ? '--skip' : ''));
 };
 exports.pushSourceStrings = pushSourceStrings;
 var _renameRubyStyleFiles = function (resource) {
@@ -8013,7 +8120,7 @@ var pullDestStrings = function (destLangCode, debugOutput) { return __awaiter(vo
         switch (_a.label) {
             case 0:
                 transifexResources = exports.loadTransifexConfig(destLangCode);
-                return [4 /*yield*/, exec("tx pull " + (debugOutput ? '--debug' : '') + " -l " + destLangCode.replace('-', '_') + " --force")];
+                return [4 /*yield*/, shell_1.run("tx pull " + (debugOutput ? '--debug' : '') + " -l " + destLangCode.replace('-', '_') + " --force")];
             case 1:
                 _a.sent();
                 if (destLangCode.includes('-')) {
@@ -8025,7 +8132,7 @@ var pullDestStrings = function (destLangCode, debugOutput) { return __awaiter(vo
 }); };
 exports.pullDestStrings = pullDestStrings;
 var pushDestStrings = function (destLangCode, debugOutput, skipBadResourceFiles) {
-    return exec("tx " + (debugOutput ? '--debug' : '') + " push -t -l " + destLangCode + " " + (skipBadResourceFiles ? '--skip' : ''));
+    return shell_1.run("tx " + (debugOutput ? '--debug' : '') + " push -t -l " + destLangCode + " " + (skipBadResourceFiles ? '--skip' : ''));
 };
 exports.pushDestStrings = pushDestStrings;
 
@@ -44612,7 +44719,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.8","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.9","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.3"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
 
 /***/ }),
 
