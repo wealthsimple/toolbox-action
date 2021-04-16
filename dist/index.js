@@ -6526,7 +6526,7 @@ exports.run = exports.buildConfiguration = exports.buildArgParameters = exports.
 const assert = __importStar(__nccwpck_require__(2357));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
-const fs = __importStar(__nccwpck_require__(5747));
+const fs_1 = __nccwpck_require__(5747);
 function image({ awsRegion, imageName, repositoryName, }) {
     return `526316940316.dkr.ecr.${awsRegion}.amazonaws.com/wealthsimple/${imageName !== null && imageName !== void 0 ? imageName : repositoryName}`;
 }
@@ -6568,7 +6568,7 @@ async function buildConfiguration() {
     const dockerFilePath = core.getInput('dockerfile_path', { required: true });
     const eventPath = process.env.GITHUB_EVENT_PATH;
     assert.ok(eventPath, 'Cannot read event file path from GITHUB_EVENT_PATH');
-    const event = JSON.parse(fs.readFileSync(eventPath, { encoding: 'utf8' }));
+    const event = JSON.parse(await fs_1.promises.readFile(eventPath, { encoding: 'utf8' }));
     const configuration = {
         sha: GITHUB_SHA,
         runNumber: GITHUB_RUN_NUMBER,
@@ -6613,6 +6613,30 @@ async function run() {
     }
 }
 exports.run = run;
+
+
+/***/ }),
+
+/***/ 5802:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.exists = void 0;
+const fs_1 = __nccwpck_require__(5747);
+async function exists(path) {
+    try {
+        await fs_1.promises.stat(path);
+        return true;
+    }
+    catch (error) {
+        if (error.code === 'ENOENT')
+            return false;
+        throw error;
+    }
+}
+exports.exists = exists;
 
 
 /***/ }),
@@ -6784,7 +6808,7 @@ exports.runYamllint = exports.runBrakeman = exports.runRubocop = exports.runBund
 const bundle = __importStar(__nccwpck_require__(5140));
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
-const fs = __importStar(__nccwpck_require__(5747));
+const file = __importStar(__nccwpck_require__(5802));
 const io = __importStar(__nccwpck_require__(1998));
 const path = __importStar(__nccwpck_require__(5622));
 async function run() {
@@ -6823,7 +6847,7 @@ exports.runBrakeman = runBrakeman;
 async function runYamllint(workingDirectory) {
     const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
     const configurationPath = path.join(cwd, '.yamllint');
-    if (!fs.existsSync(configurationPath)) {
+    if (!(await file.exists(configurationPath))) {
         await io.cp('./data/.yamllint-default', configurationPath);
     }
     let trackedFiles = '';
@@ -6985,7 +7009,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.buildConfiguration = exports.setup = exports.unzippedPath = exports.parameters = exports.latestReleaseUrl = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
-const fs = __importStar(__nccwpck_require__(5747));
+const fs_1 = __nccwpck_require__(5747);
+const file = __importStar(__nccwpck_require__(5802));
 const http = __importStar(__nccwpck_require__(9925));
 const path = __importStar(__nccwpck_require__(5622));
 const tc = __importStar(__nccwpck_require__(7784));
@@ -7063,12 +7088,12 @@ async function buildConfiguration() {
     const token = core.getInput('sonarqube_token', { required: true });
     const workspace = process.env.GITHUB_WORKSPACE;
     assert_1.ok(workspace, 'Cannot find workspace, ensure repo is checked out');
-    const hasProperties = fs.existsSync(path.join(workspace, 'sonar-project.properties'));
+    const hasProperties = await file.exists(path.join(workspace, 'sonar-project.properties'));
     const workflow = process.env.GITHUB_WORKFLOW;
     assert_1.ok(workflow, 'Cannot read workflow name from GITHUB_WORKFLOW');
     const eventPath = process.env.GITHUB_EVENT_PATH;
     assert_1.ok(eventPath, 'Cannot read event file path from GITHUB_EVENT_PATH');
-    const event = JSON.parse(fs.readFileSync(eventPath, { encoding: 'utf8' }));
+    const event = JSON.parse(await fs_1.promises.readFile(eventPath, { encoding: 'utf8' }));
     const commonConfiguration = {
         defaultBranch: event.repository.default_branch,
         hasProperties,
@@ -44587,7 +44612,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.6","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.11.8","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"]}}');
 
 /***/ }),
 
