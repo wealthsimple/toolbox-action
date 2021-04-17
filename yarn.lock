@@ -1044,26 +1044,27 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.2.tgz#cf0c4f7e4c980bc849eaf115851f2440cd62c8a5"
   integrity sha512-2ZBPviK9nFHzymu9POKGz50BRGGBIw7a8VcjgH73Xu2H4IvZx3KS0Qk/SS7S/N6iAalAGGxLSwFM1obeBGWXGg==
 
-"@wealthsimple/actions-toolbox@1.12.1":
-  version "1.12.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.12.1.tgz#f1e1b896bc668c130c0698e0c770866c5d749d56"
-  integrity sha512-795TTjnMv0Nu8WtynWgm3XqgnOw48RniHJAQLk3PXm4DOFxZa6xGryhNNz5HoSMyUsEOZqwbhUqDhk2NMGC+Jg==
+"@wealthsimple/actions-toolbox@1.12.2":
+  version "1.12.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.12.2.tgz#b83a5244c3e64e9a39f18ef222da76a7647d8df3"
+  integrity sha512-Nb2ecfHOAL3PJHkSKExb4htlAN2FekdkO5VYjG4armov3Ub2AAXZcprxsS6eM0ZBlihVS55uI6785nW/ZwYfIw==
   dependencies:
     "@actions/core" "^1.2.6"
     "@actions/exec" "^1.0.4"
     "@actions/http-client" "^1.0.9"
     "@actions/io" "^1.0.2"
     "@actions/tool-cache" "^1.6.1"
-    "@wealthsimple/transinator" "^3.1.3"
+    "@wealthsimple/transinator" "^3.1.4"
 
-"@wealthsimple/transinator@^3.1.3":
-  version "3.1.3"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.3.tgz#f9f5f3ae4bbe0672f6569b2b326b3c0a943d8a45"
-  integrity sha512-iZcn500aSI9Dw09YbgFmTTNovJv8jaNHJ5d54LC1TNIk5IqlyymLnUzqHzh2xSyUYFJHpUJ7mEDTfOoqyCU58w==
+"@wealthsimple/transinator@^3.1.4":
+  version "3.1.4"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.4.tgz#dc2c3092dfe9f894e201a3d63254d2e29026b918"
+  integrity sha512-25Hs4/cXbjE+WX6q1MJCHEIRK8iJMJY5d7H6wJsPIB83eXJ/ZJzeRIpb7qsurt6pY22xvQIrLdLZrkNfNpj+Cw==
   dependencies:
     commander "^6.2.1"
     flat "^5.0.2"
     ini "^1.3.8"
+    json-stable-stringify "^1.0.1"
     just-diff "^3.1.1"
     lodash "^4.17.21"
     winston "^3.3.3"
@@ -4478,6 +4479,13 @@ json-stable-stringify-without-jsonify@^1.0.1:
   resolved "https://nexus.iad.w10external.com/repository/npm/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz#9db7b59496ad3f3cfef30a75142d2d930ad72651"
   integrity sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=
 
+json-stable-stringify@^1.0.1:
+  version "1.0.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/json-stable-stringify/-/json-stable-stringify-1.0.1.tgz#9a759d39c5f2ff503fd5300646ed445f88c4f9af"
+  integrity sha1-mnWdOcXy/1A/1TAGRu1EX4jE+a8=
+  dependencies:
+    jsonify "~0.0.0"
+
 json-stringify-safe@^5.0.1, json-stringify-safe@~5.0.1:
   version "5.0.1"
   resolved "https://nexus.iad.w10external.com/repository/npm/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
@@ -4498,6 +4506,11 @@ jsonfile@^6.0.1:
     universalify "^2.0.0"
   optionalDependencies:
     graceful-fs "^4.1.6"
+
+jsonify@~0.0.0:
+  version "0.0.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
+  integrity sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=
 
 jsonparse@^1.2.0:
   version "1.3.1"

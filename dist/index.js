@@ -7360,24 +7360,27 @@ var sync = function (_a) {
                     return [4 /*yield*/, changeset_1.applyChangeset(localChangeSet, destLangCode, resources, headStringTables)];
                 case 10:
                     _b.sent();
-                    logger_1.logger.info('Merged local and transifex changes:');
-                    return [4 /*yield*/, git_1.printLocalChanges()];
+                    return [4 /*yield*/, string_table_1.filterEmptyTranslations(destLangCode, resources, headStringTables)];
                 case 11:
                     _b.sent();
-                    logger_1.logger.info(dryRunTag + "Pushing merged resource changes to Transifex");
-                    if (!!dryRun) return [3 /*break*/, 13];
-                    return [4 /*yield*/, transifex_1.pushDestStrings(destLangCode, debugOutput, skipBadResourceFiles)];
+                    logger_1.logger.info('Merged local and transifex changes:');
+                    return [4 /*yield*/, git_1.printLocalChanges()];
                 case 12:
                     _b.sent();
-                    _b.label = 13;
+                    logger_1.logger.info(dryRunTag + "Pushing merged resource changes to Transifex");
+                    if (!!dryRun) return [3 /*break*/, 14];
+                    return [4 /*yield*/, transifex_1.pushDestStrings(destLangCode, debugOutput, skipBadResourceFiles)];
                 case 13:
-                    logger_1.logger.info(dryRunTag + "Committing sync results");
-                    if (!!dryRun) return [3 /*break*/, 15];
-                    return [4 /*yield*/, git_1.addAndCommit()];
-                case 14:
                     _b.sent();
-                    _b.label = 15;
-                case 15: return [2 /*return*/];
+                    _b.label = 14;
+                case 14:
+                    logger_1.logger.info(dryRunTag + "Committing sync results");
+                    if (!!dryRun) return [3 /*break*/, 16];
+                    return [4 /*yield*/, git_1.addAndCommit()];
+                case 15:
+                    _b.sent();
+                    _b.label = 16;
+                case 16: return [2 /*return*/];
             }
         });
     });
@@ -7897,11 +7900,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.loadStringTables = exports.findUntranslatedStrings = exports.saveLocale = exports.loadLocale = void 0;
+exports.filterEmptyTranslations = exports.loadStringTables = exports.findUntranslatedStrings = exports.saveLocale = exports.loadLocale = void 0;
 var yamljs_1 = __importDefault(__nccwpck_require__(934));
-var lodash_1 = __importDefault(__nccwpck_require__(250));
+var lodash_1 = __nccwpck_require__(250);
 var flat_1 = __importDefault(__nccwpck_require__(9681));
 var fs_1 = __importDefault(__nccwpck_require__(5747));
+var json_stable_stringify_1 = __importDefault(__nccwpck_require__(6645));
 var logger_1 = __nccwpck_require__(3621);
 /** Parses a YAML file and returns the nested object
  * This is done because rails translation files have the language as the top
@@ -7922,15 +7926,15 @@ var getStringifier = function (format, destLangCode) {
             var _a;
             return yamljs_1.default.stringify((_a = {}, _a[destLangCode] = translations, _a), 25, 2);
         }
-        : function (translations) { return JSON.stringify(translations, null, 2) || '{}'; };
+        : function (translations) { return json_stable_stringify_1.default(translations, { space: 2 }) || '{}'; };
 };
 /**
  * Module responsible for manipulating string tables.
  */
 // Filter out empty strings from tfx pull.
 var _filterOutEmptyStrings = function (stringMap) {
-    var stringIds = lodash_1.default.keys(stringMap).filter(function (id) { return !!stringMap[id]; });
-    return lodash_1.default.pick(stringMap, stringIds);
+    var stringIds = lodash_1.keys(stringMap).filter(function (id) { return !!stringMap[id]; });
+    return lodash_1.pick(stringMap, stringIds);
 };
 /**
  * Loads a string table from the given path and transforms it into
@@ -7960,9 +7964,9 @@ exports.saveLocale = saveLocale;
  * in the dest language.
  */
 var findUntranslatedStrings = function (sourceLangStringTable, destLangStringTable) {
-    var sourceIds = lodash_1.default.keys(sourceLangStringTable);
-    var destIds = lodash_1.default.keys(destLangStringTable);
-    var untranslatedStringIDs = lodash_1.default.difference(sourceIds, destIds);
+    var sourceIds = lodash_1.keys(sourceLangStringTable);
+    var destIds = lodash_1.keys(destLangStringTable);
+    var untranslatedStringIDs = lodash_1.difference(sourceIds, destIds);
     if (untranslatedStringIDs.length > 0) {
         logger_1.logger.debug("Detected " + untranslatedStringIDs.length + " untranslated strings.");
     }
@@ -7998,6 +8002,51 @@ var loadStringTables = function (destLangCode, resources) { return __awaiter(voi
     });
 }); };
 exports.loadStringTables = loadStringTables;
+/**
+ * Transifex pull will fill in missing French strings with "". However
+ * don't want this being saved in github or pushed back up. Filter out
+ * these empty strings from the string tables.
+ */
+var filterEmptyTranslations = function (destLangCode, resources, headStringTables) { return __awaiter(void 0, void 0, void 0, function () {
+    var resourcesByName, _loop_1, _i, _a, resourceName;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                resourcesByName = lodash_1.keyBy(resources, 'name');
+                _loop_1 = function (resourceName) {
+                    var resource, sourceTable, filteredStringTable;
+                    return __generator(this, function (_c) {
+                        switch (_c.label) {
+                            case 0:
+                                resource = resourcesByName[resourceName];
+                                return [4 /*yield*/, exports.loadLocale(resource.type, resource.sourceLangPath)];
+                            case 1:
+                                sourceTable = _c.sent();
+                                filteredStringTable = lodash_1.omitBy(headStringTables[resourceName], function (destLang, id) { return !destLang && !!sourceTable[id]; });
+                                return [4 /*yield*/, exports.saveLocale(resource.type, resource.destLangPath, filteredStringTable, destLangCode)];
+                            case 2:
+                                _c.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                };
+                _i = 0, _a = Object.keys(headStringTables);
+                _b.label = 1;
+            case 1:
+                if (!(_i < _a.length)) return [3 /*break*/, 4];
+                resourceName = _a[_i];
+                return [5 /*yield**/, _loop_1(resourceName)];
+            case 2:
+                _b.sent();
+                _b.label = 3;
+            case 3:
+                _i++;
+                return [3 /*break*/, 1];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.filterEmptyTranslations = filterEmptyTranslations;
 
 
 /***/ }),
@@ -8120,7 +8169,7 @@ var pullDestStrings = function (destLangCode, debugOutput) { return __awaiter(vo
         switch (_a.label) {
             case 0:
                 transifexResources = exports.loadTransifexConfig(destLangCode);
-                return [4 /*yield*/, shell_1.run("tx pull " + (debugOutput ? '--debug' : '') + " -l " + destLangCode.replace('-', '_') + " --force")];
+                return [4 /*yield*/, shell_1.run("tx pull " + (debugOutput ? '--debug' : '') + " --mode translator -l " + destLangCode.replace('-', '_') + " --force")];
             case 1:
                 _a.sent();
                 if (destLangCode.includes('-')) {
@@ -13381,6 +13430,547 @@ var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
+};
+
+
+/***/ }),
+
+/***/ 6645:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+var json = typeof JSON !== 'undefined' ? JSON : __nccwpck_require__(5981);
+
+module.exports = function (obj, opts) {
+    if (!opts) opts = {};
+    if (typeof opts === 'function') opts = { cmp: opts };
+    var space = opts.space || '';
+    if (typeof space === 'number') space = Array(space+1).join(' ');
+    var cycles = (typeof opts.cycles === 'boolean') ? opts.cycles : false;
+    var replacer = opts.replacer || function(key, value) { return value; };
+
+    var cmp = opts.cmp && (function (f) {
+        return function (node) {
+            return function (a, b) {
+                var aobj = { key: a, value: node[a] };
+                var bobj = { key: b, value: node[b] };
+                return f(aobj, bobj);
+            };
+        };
+    })(opts.cmp);
+
+    var seen = [];
+    return (function stringify (parent, key, node, level) {
+        var indent = space ? ('\n' + new Array(level + 1).join(space)) : '';
+        var colonSeparator = space ? ': ' : ':';
+
+        if (node && node.toJSON && typeof node.toJSON === 'function') {
+            node = node.toJSON();
+        }
+
+        node = replacer.call(parent, key, node);
+
+        if (node === undefined) {
+            return;
+        }
+        if (typeof node !== 'object' || node === null) {
+            return json.stringify(node);
+        }
+        if (isArray(node)) {
+            var out = [];
+            for (var i = 0; i < node.length; i++) {
+                var item = stringify(node, i, node[i], level+1) || json.stringify(null);
+                out.push(indent + space + item);
+            }
+            return '[' + out.join(',') + indent + ']';
+        }
+        else {
+            if (seen.indexOf(node) !== -1) {
+                if (cycles) return json.stringify('__cycle__');
+                throw new TypeError('Converting circular structure to JSON');
+            }
+            else seen.push(node);
+
+            var keys = objectKeys(node).sort(cmp && cmp(node));
+            var out = [];
+            for (var i = 0; i < keys.length; i++) {
+                var key = keys[i];
+                var value = stringify(node, key, node[key], level+1);
+
+                if(!value) continue;
+
+                var keyValue = json.stringify(key)
+                    + colonSeparator
+                    + value;
+                ;
+                out.push(indent + space + keyValue);
+            }
+            seen.splice(seen.indexOf(node), 1);
+            return '{' + out.join(',') + indent + '}';
+        }
+    })({ '': obj }, '', obj, 0);
+};
+
+var isArray = Array.isArray || function (x) {
+    return {}.toString.call(x) === '[object Array]';
+};
+
+var objectKeys = Object.keys || function (obj) {
+    var has = Object.prototype.hasOwnProperty || function () { return true };
+    var keys = [];
+    for (var key in obj) {
+        if (has.call(obj, key)) keys.push(key);
+    }
+    return keys;
+};
+
+
+/***/ }),
+
+/***/ 5981:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+exports.parse = __nccwpck_require__(5202);
+exports.stringify = __nccwpck_require__(831);
+
+
+/***/ }),
+
+/***/ 5202:
+/***/ ((module) => {
+
+var at, // The index of the current character
+    ch, // The current character
+    escapee = {
+        '"':  '"',
+        '\\': '\\',
+        '/':  '/',
+        b:    '\b',
+        f:    '\f',
+        n:    '\n',
+        r:    '\r',
+        t:    '\t'
+    },
+    text,
+
+    error = function (m) {
+        // Call error when something is wrong.
+        throw {
+            name:    'SyntaxError',
+            message: m,
+            at:      at,
+            text:    text
+        };
+    },
+    
+    next = function (c) {
+        // If a c parameter is provided, verify that it matches the current character.
+        if (c && c !== ch) {
+            error("Expected '" + c + "' instead of '" + ch + "'");
+        }
+        
+        // Get the next character. When there are no more characters,
+        // return the empty string.
+        
+        ch = text.charAt(at);
+        at += 1;
+        return ch;
+    },
+    
+    number = function () {
+        // Parse a number value.
+        var number,
+            string = '';
+        
+        if (ch === '-') {
+            string = '-';
+            next('-');
+        }
+        while (ch >= '0' && ch <= '9') {
+            string += ch;
+            next();
+        }
+        if (ch === '.') {
+            string += '.';
+            while (next() && ch >= '0' && ch <= '9') {
+                string += ch;
+            }
+        }
+        if (ch === 'e' || ch === 'E') {
+            string += ch;
+            next();
+            if (ch === '-' || ch === '+') {
+                string += ch;
+                next();
+            }
+            while (ch >= '0' && ch <= '9') {
+                string += ch;
+                next();
+            }
+        }
+        number = +string;
+        if (!isFinite(number)) {
+            error("Bad number");
+        } else {
+            return number;
+        }
+    },
+    
+    string = function () {
+        // Parse a string value.
+        var hex,
+            i,
+            string = '',
+            uffff;
+        
+        // When parsing for string values, we must look for " and \ characters.
+        if (ch === '"') {
+            while (next()) {
+                if (ch === '"') {
+                    next();
+                    return string;
+                } else if (ch === '\\') {
+                    next();
+                    if (ch === 'u') {
+                        uffff = 0;
+                        for (i = 0; i < 4; i += 1) {
+                            hex = parseInt(next(), 16);
+                            if (!isFinite(hex)) {
+                                break;
+                            }
+                            uffff = uffff * 16 + hex;
+                        }
+                        string += String.fromCharCode(uffff);
+                    } else if (typeof escapee[ch] === 'string') {
+                        string += escapee[ch];
+                    } else {
+                        break;
+                    }
+                } else {
+                    string += ch;
+                }
+            }
+        }
+        error("Bad string");
+    },
+
+    white = function () {
+
+// Skip whitespace.
+
+        while (ch && ch <= ' ') {
+            next();
+        }
+    },
+
+    word = function () {
+
+// true, false, or null.
+
+        switch (ch) {
+        case 't':
+            next('t');
+            next('r');
+            next('u');
+            next('e');
+            return true;
+        case 'f':
+            next('f');
+            next('a');
+            next('l');
+            next('s');
+            next('e');
+            return false;
+        case 'n':
+            next('n');
+            next('u');
+            next('l');
+            next('l');
+            return null;
+        }
+        error("Unexpected '" + ch + "'");
+    },
+
+    value,  // Place holder for the value function.
+
+    array = function () {
+
+// Parse an array value.
+
+        var array = [];
+
+        if (ch === '[') {
+            next('[');
+            white();
+            if (ch === ']') {
+                next(']');
+                return array;   // empty array
+            }
+            while (ch) {
+                array.push(value());
+                white();
+                if (ch === ']') {
+                    next(']');
+                    return array;
+                }
+                next(',');
+                white();
+            }
+        }
+        error("Bad array");
+    },
+
+    object = function () {
+
+// Parse an object value.
+
+        var key,
+            object = {};
+
+        if (ch === '{') {
+            next('{');
+            white();
+            if (ch === '}') {
+                next('}');
+                return object;   // empty object
+            }
+            while (ch) {
+                key = string();
+                white();
+                next(':');
+                if (Object.hasOwnProperty.call(object, key)) {
+                    error('Duplicate key "' + key + '"');
+                }
+                object[key] = value();
+                white();
+                if (ch === '}') {
+                    next('}');
+                    return object;
+                }
+                next(',');
+                white();
+            }
+        }
+        error("Bad object");
+    };
+
+value = function () {
+
+// Parse a JSON value. It could be an object, an array, a string, a number,
+// or a word.
+
+    white();
+    switch (ch) {
+    case '{':
+        return object();
+    case '[':
+        return array();
+    case '"':
+        return string();
+    case '-':
+        return number();
+    default:
+        return ch >= '0' && ch <= '9' ? number() : word();
+    }
+};
+
+// Return the json_parse function. It will have access to all of the above
+// functions and variables.
+
+module.exports = function (source, reviver) {
+    var result;
+    
+    text = source;
+    at = 0;
+    ch = ' ';
+    result = value();
+    white();
+    if (ch) {
+        error("Syntax error");
+    }
+
+    // If there is a reviver function, we recursively walk the new structure,
+    // passing each name/value pair to the reviver function for possible
+    // transformation, starting with a temporary root object that holds the result
+    // in an empty key. If there is not a reviver function, we simply return the
+    // result.
+
+    return typeof reviver === 'function' ? (function walk(holder, key) {
+        var k, v, value = holder[key];
+        if (value && typeof value === 'object') {
+            for (k in value) {
+                if (Object.prototype.hasOwnProperty.call(value, k)) {
+                    v = walk(value, k);
+                    if (v !== undefined) {
+                        value[k] = v;
+                    } else {
+                        delete value[k];
+                    }
+                }
+            }
+        }
+        return reviver.call(holder, key, value);
+    }({'': result}, '')) : result;
+};
+
+
+/***/ }),
+
+/***/ 831:
+/***/ ((module) => {
+
+var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+    escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+    gap,
+    indent,
+    meta = {    // table of character substitutions
+        '\b': '\\b',
+        '\t': '\\t',
+        '\n': '\\n',
+        '\f': '\\f',
+        '\r': '\\r',
+        '"' : '\\"',
+        '\\': '\\\\'
+    },
+    rep;
+
+function quote(string) {
+    // If the string contains no control characters, no quote characters, and no
+    // backslash characters, then we can safely slap some quotes around it.
+    // Otherwise we must also replace the offending characters with safe escape
+    // sequences.
+    
+    escapable.lastIndex = 0;
+    return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+        var c = meta[a];
+        return typeof c === 'string' ? c :
+            '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+    }) + '"' : '"' + string + '"';
+}
+
+function str(key, holder) {
+    // Produce a string from holder[key].
+    var i,          // The loop counter.
+        k,          // The member key.
+        v,          // The member value.
+        length,
+        mind = gap,
+        partial,
+        value = holder[key];
+    
+    // If the value has a toJSON method, call it to obtain a replacement value.
+    if (value && typeof value === 'object' &&
+            typeof value.toJSON === 'function') {
+        value = value.toJSON(key);
+    }
+    
+    // If we were called with a replacer function, then call the replacer to
+    // obtain a replacement value.
+    if (typeof rep === 'function') {
+        value = rep.call(holder, key, value);
+    }
+    
+    // What happens next depends on the value's type.
+    switch (typeof value) {
+        case 'string':
+            return quote(value);
+        
+        case 'number':
+            // JSON numbers must be finite. Encode non-finite numbers as null.
+            return isFinite(value) ? String(value) : 'null';
+        
+        case 'boolean':
+        case 'null':
+            // If the value is a boolean or null, convert it to a string. Note:
+            // typeof null does not produce 'null'. The case is included here in
+            // the remote chance that this gets fixed someday.
+            return String(value);
+            
+        case 'object':
+            if (!value) return 'null';
+            gap += indent;
+            partial = [];
+            
+            // Array.isArray
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+                
+                // Join all of the elements together, separated with commas, and
+                // wrap them in brackets.
+                v = partial.length === 0 ? '[]' : gap ?
+                    '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' :
+                    '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+            
+            // If the replacer is an array, use it to select the members to be
+            // stringified.
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    k = rep[i];
+                    if (typeof k === 'string') {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+            else {
+                // Otherwise, iterate through all of the keys in the object.
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+            
+        // Join all of the member texts together, separated with commas,
+        // and wrap them in braces.
+
+        v = partial.length === 0 ? '{}' : gap ?
+            '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' :
+            '{' + partial.join(',') + '}';
+        gap = mind;
+        return v;
+    }
+}
+
+module.exports = function (value, replacer, space) {
+    var i;
+    gap = '';
+    indent = '';
+    
+    // If the space parameter is a number, make an indent string containing that
+    // many spaces.
+    if (typeof space === 'number') {
+        for (i = 0; i < space; i += 1) {
+            indent += ' ';
+        }
+    }
+    // If the space parameter is a string, it will be used as the indent string.
+    else if (typeof space === 'string') {
+        indent = space;
+    }
+
+    // If there is a replacer, it must be a function or an array.
+    // Otherwise, throw an error.
+    rep = replacer;
+    if (replacer && typeof replacer !== 'function'
+    && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
+        throw new Error('JSON.stringify');
+    }
+    
+    // Make a fake root object containing our value under the key of ''.
+    // Return the result of stringifying the value.
+    return str('', {'': value});
 };
 
 
@@ -44719,7 +45309,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.12.1","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.3"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"],"testTimeout":10000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.12.2","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@wealthsimple/transinator":"^3.1.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","@wealthsimple/git-commitlint-hook":"^1.0.1","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$"],"testTimeout":10000}}');
 
 /***/ }),
 
