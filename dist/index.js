@@ -7723,9 +7723,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.buildConfiguration = exports.command = exports.environment = void 0;
+exports.run = exports.setupDb = exports.buildConfiguration = exports.rspecCommand = exports.environment = void 0;
 const exec_1 = __nccwpck_require__(1514);
 const core = __importStar(__nccwpck_require__(7182));
+const bundle_1 = __nccwpck_require__(5140);
 const DATADOG_CONFIGURATION = Object.freeze({
     DATADOG_CI_ENABLED: 'true',
     DD_INTEGRATION_RSPEC_ENABLED: 'true',
@@ -7736,7 +7737,7 @@ function environment({ isDatadogEnabled }, environment) {
 }
 exports.environment = environment;
 const RSPEC_ARGUMENTS = '--format progress --order rand';
-function command({ isKnapsackEnabled }) {
+function rspecCommand({ isKnapsackEnabled }) {
     if (isKnapsackEnabled) {
         return `bundle exec rake "knapsack:rspec[${RSPEC_ARGUMENTS}]"`;
     }
@@ -7744,24 +7745,50 @@ function command({ isKnapsackEnabled }) {
         return `bundle exec rspec ${RSPEC_ARGUMENTS}`;
     }
 }
-exports.command = command;
+exports.rspecCommand = rspecCommand;
 async function buildConfiguration() {
     const isDatadogEnabled = core.getInput('enable_datadog') === 'true';
     const isKnapsackEnabled = core.getInput('enable_knapsack') === 'true';
     return { isDatadogEnabled, isKnapsackEnabled };
 }
 exports.buildConfiguration = buildConfiguration;
+async function setupDb(workingDirectory) {
+    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
+    const isRakeBundled = await bundle_1.isBundled('rake', cwd);
+    if (!isRakeBundled) {
+        return 0;
+    }
+    let rakeTasks = '';
+    await exec_1.exec('bundle', ['exec', 'rake', '--tasks'], {
+        cwd,
+        listeners: { stdout: (data) => (rakeTasks += data.toString()) },
+    });
+    if (rakeTasks.includes('db:create') && rakeTasks.includes('db:schema:load')) {
+        const config = {
+            cwd,
+            env: {
+                ...process.env,
+                RAILS_ENV: 'test',
+            },
+        };
+        await exec_1.exec('bundle', ['exec', 'rake', 'db:setup'], config);
+        return exec_1.exec('bundle', ['exec', 'rake', 'db:schema:load'], config);
+    }
+    return 0;
+}
+exports.setupDb = setupDb;
 async function run() {
     const configuration = await buildConfiguration();
     const env = environment(configuration, process.env);
-    const stringsOnly = Object.keys(env).reduce((strings, variable) => {
-        const value = env[variable];
+    const envStringValuesOnly = Object.keys(env).reduce((filteredEnv, key) => {
+        const value = env[key];
         if (typeof value === 'string') {
-            strings[variable] = value;
+            filteredEnv[key] = value;
         }
-        return strings;
+        return filteredEnv;
     }, {});
-    return exec_1.exec(command(configuration), [], { env: stringsOnly });
+    await setupDb();
+    return exec_1.exec(rspecCommand(configuration), [], { env: envStringValuesOnly });
 }
 exports.run = run;
 
@@ -46096,7 +46123,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.14.0","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.15.0","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
 
 /***/ }),
 
