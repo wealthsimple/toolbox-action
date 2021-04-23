@@ -8345,32 +8345,6 @@ __exportStar(__nccwpck_require__(4559), exports);
 
 /***/ }),
 
-/***/ 6766:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-var fs_1 = __nccwpck_require__(5747);
-var path_1 = __nccwpck_require__(5622);
-var version = JSON.parse(fs_1.readFileSync(__nccwpck_require__.ab + "package.json").toString()).version;
-var _loadOrDefault = function (envVarName, defaultValue) {
-    if (defaultValue === void 0) { defaultValue = 'unknown'; }
-    return process.env[envVarName] || defaultValue;
-};
-var config = {
-    projectName: _loadOrDefault('CIRCLE_PROJECT_REPONAME'),
-    buildUrl: _loadOrDefault('CIRCLE_BUILD_URL'),
-    repoUrl: _loadOrDefault('CIRCLE_REPOSITORY_URL'),
-    commitSha: _loadOrDefault('CIRCLE_SHA1'),
-    lengthVarianceThresholdPercent: 30,
-    version: version,
-};
-exports.default = config;
-
-
-/***/ }),
-
 /***/ 9601:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -8412,14 +8386,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.printLocalChanges = exports.addAndCommit = exports.restoreRevision = exports.checkOutLastSyncedRevision = void 0;
 var shell_1 = __nccwpck_require__(2479);
 var logger_1 = __nccwpck_require__(3621);
-var config_1 = __importDefault(__nccwpck_require__(6766));
 var checkOutLastSyncedRevision = function () { return __awaiter(void 0, void 0, void 0, function () {
     var lastRevision, stdout, e_1;
     return __generator(this, function (_a) {
@@ -8477,7 +8447,7 @@ var addAndCommit = function () { return __awaiter(void 0, void 0, void 0, functi
                 return [4 /*yield*/, shell_1.run('git add --all')];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, shell_1.run("git commit -m 'fix(translations): Sync with Transifex (transinator@" + config_1.default.version + "'")];
+                return [4 /*yield*/, shell_1.run("git commit -m 'fix(translations): Sync with Transifex'")];
             case 5:
                 _a.sent();
                 return [4 /*yield*/, shell_1.run("git tag Transinator-$(git rev-parse HEAD)")];
@@ -46144,7 +46114,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.15.2","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.5"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.15.3","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.6"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
 
 /***/ }),
 
