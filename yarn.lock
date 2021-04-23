@@ -1278,10 +1278,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.3.tgz#9461bdbf334d616759b0e7e5415e2f480b9aa30f"
   integrity sha512-g3gk4D9itbhUQa5MtN7TOdeoQnNLkPDCox5SBaQ/H3Or5lo59TOaZWrLb+x47StiAJ+8DXZS/9MJ67cIBWSsRw==
 
-"@wealthsimple/actions-toolbox@1.15.1":
-  version "1.15.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.15.1.tgz#87a7065ac7e80617408409b0a0518a48a81d24de"
-  integrity sha512-frCFVwDHa/9255dOVJrKlo/YY5kpNPAbxLTRGIM6yPSqisQba1mYoYXJ8VkPxXQPNDxnBdy9CqNUnulQxdbx7g==
+"@wealthsimple/actions-toolbox@1.15.2":
+  version "1.15.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.15.2.tgz#9e70087a1cb9a2f54f0a87a2cef2a3b19486481c"
+  integrity sha512-DdDQ4bpmdEKlrB5tjqqsQmwG5bgBl6Q5jqVT/XUPlgEm4thELYT0j/ijoDJSGF9HP44Jq5/ywZHp4pj1wMH3jA==
   dependencies:
     "@actions/core" "^1.2.6"
     "@actions/exec" "^1.0.4"
@@ -1291,7 +1291,7 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
-    "@wealthsimple/transinator" "^3.1.4"
+    "@wealthsimple/transinator" "^3.1.5"
 
 "@wealthsimple/git-commitlint-hook@^1.0.1":
   version "1.0.1"
@@ -1304,10 +1304,10 @@
     cz-conventional-changelog "^3.1.0"
     husky "^4.2.1"
 
-"@wealthsimple/transinator@^3.1.4":
-  version "3.1.4"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.4.tgz#dc2c3092dfe9f894e201a3d63254d2e29026b918"
-  integrity sha512-25Hs4/cXbjE+WX6q1MJCHEIRK8iJMJY5d7H6wJsPIB83eXJ/ZJzeRIpb7qsurt6pY22xvQIrLdLZrkNfNpj+Cw==
+"@wealthsimple/transinator@^3.1.5":
+  version "3.1.5"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.5.tgz#b90f20cbb4d0175ee06984c477eb52039f0f2646"
+  integrity sha512-KetJJGdWozW6Wy1M8J86zsV9PBiwS412cnc/XI2k1d3A/KOhZTPL14pGKmBtwsGrrkHopvNMqaWeEN92jeH0Zw==
   dependencies:
     commander "^6.2.1"
     flat "^5.0.2"

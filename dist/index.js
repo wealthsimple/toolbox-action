@@ -7383,17 +7383,17 @@ async function buildConfiguration() {
     return configuration;
 }
 exports.buildConfiguration = buildConfiguration;
-async function run() {
+async function run(execFn = exec.exec) {
     try {
         const config = await buildConfiguration();
-        await exec.exec('docker build', [
+        await execFn('docker build', [
             config.dockerBuildPath,
             '--file',
             config.dockerFilePath,
             ...buildArgParameters(config),
             ...tagParameters(config),
         ]);
-        await exec.exec('docker push', ['--all-tags', image(config)]);
+        await execFn('docker push', ['--all-tags', image(config)]);
     }
     catch (error) {
         core.setFailed(error.message);
@@ -7455,10 +7455,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupUser = void 0;
 const exec = __importStar(__nccwpck_require__(1514));
-async function setupUser(username = 'Wolfbot', email = 'noreply@wealthsimple.com') {
+async function setupUser(username = 'Wolfbot', email = 'noreply@wealthsimple.com', execFn = exec.exec) {
     return Promise.all([
-        exec.exec('git', ['config', 'user.name', username]),
-        exec.exec('git', ['config', 'user.email', email]),
+        execFn('git', ['config', 'user.name', username]),
+        execFn('git', ['config', 'user.email', email]),
     ]);
 }
 exports.setupUser = setupUser;
@@ -7518,11 +7518,9 @@ exports.transinator = __importStar(__nccwpck_require__(5796));
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isBundled = void 0;
 const exec_1 = __nccwpck_require__(1514);
-async function isBundled(gemName, workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
+async function isBundled(gemName, execFn = exec_1.exec) {
     let gemNames = '';
-    await exec_1.exec('bundle list', ['--name-only'], {
-        cwd,
+    await execFn('bundle list', ['--name-only'], {
         listeners: { stdout: (data) => (gemNames += data.toString()) },
     });
     return gemNames.includes(gemName);
@@ -7598,52 +7596,51 @@ const exec = __importStar(__nccwpck_require__(1514));
 const file = __importStar(__nccwpck_require__(5802));
 const io = __importStar(__nccwpck_require__(1998));
 const path = __importStar(__nccwpck_require__(5622));
-async function run() {
+async function run(execFn = exec.exec) {
     const lintYaml = core.getInput('lint_yaml', { required: false }) === 'true';
     if (lintYaml) {
         return Promise.all([
-            runRubocop(),
-            runBrakeman(),
-            runBundleAudit(),
-            runYamllint(),
+            runRubocop(execFn),
+            runBrakeman(execFn),
+            runBundleAudit(execFn),
+            runYamllint(execFn),
         ]);
     }
-    return Promise.all([runRubocop(), runBrakeman(), runBundleAudit()]);
+    return Promise.all([
+        runRubocop(execFn),
+        runBrakeman(execFn),
+        runBundleAudit(execFn),
+    ]);
 }
 exports.run = run;
-async function runBundleAudit(workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    await exec.exec('bundle exec bundle-audit update', [], { cwd });
-    return await exec.exec('bundle exec bundle-audit check', [], { cwd });
+async function runBundleAudit(execFn = exec.exec) {
+    await execFn('bundle exec bundle-audit update');
+    return await execFn('bundle exec bundle-audit check');
 }
 exports.runBundleAudit = runBundleAudit;
-async function runRubocop(workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    return exec.exec('bundle exec rubocop', [], { cwd });
+async function runRubocop(execFn = exec.exec) {
+    return execFn('bundle exec rubocop');
 }
 exports.runRubocop = runRubocop;
-async function runBrakeman(workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    const brakemanAvailable = await bundle.isBundled('brakeman', cwd);
+async function runBrakeman(execFn = exec.exec) {
+    const brakemanAvailable = await bundle.isBundled('brakeman', execFn);
     if (brakemanAvailable) {
-        return exec.exec('bundle', ['exec', 'brakeman', '-A', '-x', 'CheckForceSSL'], { cwd });
+        return execFn('bundle', ['exec', 'brakeman', '-A', '-x', 'CheckForceSSL']);
     }
     return 0;
 }
 exports.runBrakeman = runBrakeman;
-async function runYamllint(workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    const configurationPath = path.join(cwd, '.yamllint');
+async function runYamllint(execFn = exec.exec) {
+    const configurationPath = path.join(process.cwd(), '.yamllint');
     if (!(await file.exists(configurationPath))) {
         await io.cp(path.join(__dirname, '..', '..', 'data', '.yamllint-default'), configurationPath);
     }
     let trackedFiles = '';
-    await exec.exec('git ls-files', [], {
-        cwd,
+    await execFn('git ls-files', [], {
         listeners: { stdout: (data) => (trackedFiles += data.toString()) },
     });
     const yamls = trackedFiles.split('\n').filter((s) => /\.ya?ml$/.test(s));
-    return exec.exec('yamllint', yamls, { cwd });
+    return execFn('yamllint', yamls);
 }
 exports.runYamllint = runYamllint;
 
@@ -7679,14 +7676,12 @@ exports.run = void 0;
 const core = __importStar(__nccwpck_require__(7182));
 const exec = __importStar(__nccwpck_require__(1514));
 const git = __importStar(__nccwpck_require__(9390));
-async function run(workingDirectory) {
+async function run(execFn = exec.exec) {
     const nexusGemCredentials = core.getInput('nexus_gem_credentials_file', {
         required: true,
     });
     await git.setupUser();
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    return exec.exec('bundle', ['exec', 'rake', 'release'], {
-        cwd,
+    return execFn('bundle', ['exec', 'rake', 'release'], {
         env: {
             ...process.env,
             RUBY_GEM_NEXUS: nexusGemCredentials,
@@ -7752,32 +7747,29 @@ async function buildConfiguration() {
     return { isDatadogEnabled, isKnapsackEnabled };
 }
 exports.buildConfiguration = buildConfiguration;
-async function setupDb(workingDirectory) {
-    const cwd = workingDirectory !== null && workingDirectory !== void 0 ? workingDirectory : process.cwd();
-    const isRakeBundled = await bundle_1.isBundled('rake', cwd);
+async function setupDb(execFn = exec_1.exec) {
+    const isRakeBundled = await bundle_1.isBundled('rake', execFn);
     if (!isRakeBundled) {
         return 0;
     }
     let rakeTasks = '';
-    await exec_1.exec('bundle', ['exec', 'rake', '--tasks'], {
-        cwd,
+    await execFn('bundle', ['exec', 'rake', '--tasks'], {
         listeners: { stdout: (data) => (rakeTasks += data.toString()) },
     });
     if (rakeTasks.includes('db:create') && rakeTasks.includes('db:schema:load')) {
         const config = {
-            cwd,
             env: {
                 ...process.env,
                 RAILS_ENV: 'test',
             },
         };
-        await exec_1.exec('bundle', ['exec', 'rake', 'db:setup'], config);
-        return exec_1.exec('bundle', ['exec', 'rake', 'db:schema:load'], config);
+        await execFn('bundle', ['exec', 'rake', 'db:setup'], config);
+        return execFn('bundle', ['exec', 'rake', 'db:schema:load'], config);
     }
     return 0;
 }
 exports.setupDb = setupDb;
-async function run() {
+async function run(execFn = exec_1.exec) {
     const configuration = await buildConfiguration();
     const env = environment(configuration, process.env);
     const envStringValuesOnly = Object.keys(env).reduce((filteredEnv, key) => {
@@ -7788,7 +7780,7 @@ async function run() {
         return filteredEnv;
     }, {});
     await setupDb();
-    return exec_1.exec(rspecCommand(configuration), [], { env: envStringValuesOnly });
+    return execFn(rspecCommand(configuration), [], { env: envStringValuesOnly });
 }
 exports.run = run;
 
@@ -7931,10 +7923,10 @@ async function buildConfiguration() {
     }
 }
 exports.buildConfiguration = buildConfiguration;
-async function run() {
+async function run(execFn = exec.exec) {
     try {
         await setup();
-        await exec.exec('sonar-scanner', parameters(await buildConfiguration()));
+        await execFn('sonar-scanner', parameters(await buildConfiguration()));
     }
     catch (error) {
         core.setFailed(error.message);
@@ -7960,22 +7952,22 @@ const actions_1 = __nccwpck_require__(8336);
 const exec_1 = __nccwpck_require__(1514);
 const DEST_LANG_CODE = 'fr_CA';
 exports.TRANSIFEX_CREDENTIALS_FILE = path_1.join(os_1.homedir(), '.transifexrc');
-const setup = async () => {
+const setup = async (execFn = exec_1.exec) => {
     await fs_1.promises.writeFile(exports.TRANSIFEX_CREDENTIALS_FILE, `[https://www.transifex.com]
 api_hostname = https://api.transifex.com
 hostname = https://www.transifex.com
 password = ${core_1.getInput('transifex_token', { required: true })}
 username = api
 `);
-    await exec_1.exec('pip install transifex-client');
+    await execFn('pip install transifex-client');
 };
-const check = async () => {
-    await setup();
+const check = async (execFn = exec_1.exec) => {
+    await setup(execFn);
     await actions_1.check(DEST_LANG_CODE);
 };
 exports.check = check;
-const sync = async () => {
-    await setup();
+const sync = async (execFn = exec_1.exec) => {
+    await setup(execFn);
     await actions_1.sync({
         dryRun: false,
         debugOutput: false,
@@ -8156,24 +8148,23 @@ var sync = function (_a) {
                     _b.label = 5;
                 case 5:
                     logger_1.logger.info(dryRunTag + "Pulling latest " + destLangCode + " changes from Transifex");
-                    if (!!dryRun) return [3 /*break*/, 9];
+                    if (!!dryRun) return [3 /*break*/, 8];
                     return [4 /*yield*/, transifex_1.pullDestStrings(destLangCode, debugOutput)];
                 case 6:
                     _b.sent();
-                    logger_1.logger.info('Detected the following changes in transifex');
-                    return [4 /*yield*/, git_1.printLocalChanges()];
-                case 7:
-                    _b.sent();
                     return [4 /*yield*/, string_table_1.loadStringTables(destLangCode, resources)];
-                case 8:
+                case 7:
                     headStringTables = _b.sent();
-                    _b.label = 9;
-                case 9:
+                    _b.label = 8;
+                case 8:
                     logger_1.logger.info(dryRunTag + "Applying most recent git changes on top:");
                     logger_1.logger.info(JSON.stringify(localChangeSet, null, 2));
                     return [4 /*yield*/, changeset_1.applyChangeset(localChangeSet, destLangCode, resources, headStringTables)];
-                case 10:
+                case 9:
                     _b.sent();
+                    return [4 /*yield*/, string_table_1.loadStringTables(destLangCode, resources)];
+                case 10:
+                    headStringTables = _b.sent();
                     return [4 /*yield*/, string_table_1.filterEmptyTranslations(destLangCode, resources, headStringTables)];
                 case 11:
                     _b.sent();
@@ -8354,6 +8345,32 @@ __exportStar(__nccwpck_require__(4559), exports);
 
 /***/ }),
 
+/***/ 6766:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var fs_1 = __nccwpck_require__(5747);
+var path_1 = __nccwpck_require__(5622);
+var version = JSON.parse(fs_1.readFileSync(__nccwpck_require__.ab + "package.json").toString()).version;
+var _loadOrDefault = function (envVarName, defaultValue) {
+    if (defaultValue === void 0) { defaultValue = 'unknown'; }
+    return process.env[envVarName] || defaultValue;
+};
+var config = {
+    projectName: _loadOrDefault('CIRCLE_PROJECT_REPONAME'),
+    buildUrl: _loadOrDefault('CIRCLE_BUILD_URL'),
+    repoUrl: _loadOrDefault('CIRCLE_REPOSITORY_URL'),
+    commitSha: _loadOrDefault('CIRCLE_SHA1'),
+    lengthVarianceThresholdPercent: 30,
+    version: version,
+};
+exports.default = config;
+
+
+/***/ }),
+
 /***/ 9601:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -8395,10 +8412,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.printLocalChanges = exports.addAndCommit = exports.restoreRevision = exports.checkOutLastSyncedRevision = void 0;
 var shell_1 = __nccwpck_require__(2479);
 var logger_1 = __nccwpck_require__(3621);
+var config_1 = __importDefault(__nccwpck_require__(6766));
 var checkOutLastSyncedRevision = function () { return __awaiter(void 0, void 0, void 0, function () {
     var lastRevision, stdout, e_1;
     return __generator(this, function (_a) {
@@ -8456,7 +8477,7 @@ var addAndCommit = function () { return __awaiter(void 0, void 0, void 0, functi
                 return [4 /*yield*/, shell_1.run('git add --all')];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, shell_1.run("git commit -m 'fix(translations): Sync with Transifex'")];
+                return [4 /*yield*/, shell_1.run("git commit -m 'fix(translations): Sync with Transifex (transinator@" + config_1.default.version + "'")];
             case 5:
                 _a.sent();
                 return [4 /*yield*/, shell_1.run("git tag Transinator-$(git rev-parse HEAD)")];
@@ -46123,7 +46144,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.15.1","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.15.2","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.5"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":10000}}');
 
 /***/ }),
 
