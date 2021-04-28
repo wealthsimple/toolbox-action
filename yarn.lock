@@ -1278,10 +1278,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.3.tgz#9461bdbf334d616759b0e7e5415e2f480b9aa30f"
   integrity sha512-g3gk4D9itbhUQa5MtN7TOdeoQnNLkPDCox5SBaQ/H3Or5lo59TOaZWrLb+x47StiAJ+8DXZS/9MJ67cIBWSsRw==
 
-"@wealthsimple/actions-toolbox@1.0.0":
-  version "1.0.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.0.0.tgz#cda41a79973186d1bd0ebb699f1dc73e54568732"
-  integrity sha512-7bPRXj4iR6/owNKyCzeDWHfy0vcgjF+Ksk855Ltk0qti/Dii+qE+Mf2Jhy/P0tgSsarfDZTYN9rG1oXxIRc9cw==
+"@wealthsimple/actions-toolbox@1.15.4":
+  version "1.15.4"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.15.4.tgz#e38b5c11ae7a032dffbf6673950b6d42d3e110f7"
+  integrity sha512-Ho4wuzKUe5LWCIe+8yMWHsIQ2Y8K67tVYapLTt3HRazFB1VvRQaCbXttEeD/CiRSw3und23Y1+zo+HFn+idviw==
   dependencies:
     "@actions/core" "^1.2.6"
     "@actions/exec" "^1.0.4"
@@ -1291,7 +1291,7 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
-    "@wealthsimple/transinator" "^3.1.6"
+    "@wealthsimple/transinator" "^3.1.7"
 
 "@wealthsimple/git-commitlint-hook@^1.0.1":
   version "1.0.1"
@@ -1304,10 +1304,10 @@
     cz-conventional-changelog "^3.1.0"
     husky "^4.2.1"
 
-"@wealthsimple/transinator@^3.1.6":
-  version "3.1.6"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.6.tgz#6d85437919e43c6bd02f975836133bb1758e0e38"
-  integrity sha512-5SQLUsJwmjCzsjsMEHaezx4NoKlV7X731cdEtvtnfIOgZYGBwlzPdZdcs3EA5lppoFCK5JGPP6ZtAGF0Aug58w==
+"@wealthsimple/transinator@^3.1.7":
+  version "3.1.7"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.7.tgz#8f1a0aa83fd107cc0399cac7fc5375d2304973ab"
+  integrity sha512-Fhtb01RvH8A73wKyVUASI7DbsexAdBEwh+YXS1IrHK8TF7osHEZMvTeIH+PXopTgVe7aOK/OfylglND169rPIg==
   dependencies:
     commander "^6.2.1"
     flat "^5.0.2"
