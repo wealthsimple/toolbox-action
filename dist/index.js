@@ -10695,6 +10695,38 @@ exports.transinator = __importStar(__nccwpck_require__(65796));
 
 /***/ }),
 
+/***/ 42916:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.runYarnInstall = exports.run = void 0;
+const core_1 = __nccwpck_require__(97182);
+const exec_1 = __nccwpck_require__(71514);
+async function run() {
+    return runYarnInstall(buildConfiguration());
+}
+exports.run = run;
+async function runYarnInstall(config, execFn = exec_1.exec) {
+    // based on best practices in setup-node README under "Use private packages"
+    // https://github.com/actions/setup-node
+    await execFn('yarn', ['install', '--ignore-scripts'], {
+        env: { NODE_AUTH_TOKEN: config.nexusNpmToken },
+    });
+    await execFn('npm', ['rebuild']);
+    return execFn('npm', ['run', 'prepare', '--if-present']);
+}
+exports.runYarnInstall = runYarnInstall;
+function buildConfiguration() {
+    return {
+        nexusNpmToken: core_1.getInput('nexus_npm_token', { required: true }),
+    };
+}
+
+
+/***/ }),
+
 /***/ 64076:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -10720,7 +10752,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.test = exports.publish = exports.lint = void 0;
+exports.test = exports.publish = exports.lint = exports.dependencies = void 0;
+exports.dependencies = __importStar(__nccwpck_require__(42916));
 exports.lint = __importStar(__nccwpck_require__(6577));
 exports.publish = __importStar(__nccwpck_require__(25190));
 exports.test = __importStar(__nccwpck_require__(11376));
@@ -101397,7 +101430,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.16.0","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":90000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.16.1","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":90000}}');
 
 /***/ }),
 
@@ -101493,7 +101526,7 @@ module.exports = {"i8":"3.3.3"};
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"toolbox-script","version":"1.38.0","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.16.0"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.22","@types/node":"^15.0.1","@typescript-eslint/eslint-plugin":"^4.22.0","@typescript-eslint/parser":"^4.22.0","@vercel/ncc":"^0.28.3","eslint":"^7.25.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.5","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.5","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
+module.exports = JSON.parse('{"name":"toolbox-script","version":"1.39.0","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.16.1"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.22","@types/node":"^15.0.1","@typescript-eslint/eslint-plugin":"^4.22.0","@typescript-eslint/parser":"^4.22.0","@vercel/ncc":"^0.28.3","eslint":"^7.25.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.5","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.5","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
 
 /***/ }),
 
