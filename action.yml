@@ -30,6 +30,12 @@ inputs:
   lint_yaml:
     required: false
     description: If true, run `yamllint` on project's YAML files
+  github_api_token:
+    required: false
+    description: Github API token for accessing Wealthsimple private repos
+  github_username:
+    required: false
+    description: Github username for creating tags / comments
   nexus_gem_credentials_file:
     required: false
     description: Nexus credentials for publishing ruby gems
