@@ -10389,9 +10389,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.buildConfiguration = exports.buildArgParameters = exports.tagParameters = exports.image = void 0;
 const assert = __importStar(__nccwpck_require__(42357));
+const fs_1 = __nccwpck_require__(35747);
 const core = __importStar(__nccwpck_require__(97182));
 const exec = __importStar(__nccwpck_require__(71514));
-const fs_1 = __nccwpck_require__(35747);
 function image({ awsRegion, imageName, repositoryName, }) {
     return `526316940316.dkr.ecr.${awsRegion}.amazonaws.com/wealthsimple/${imageName !== null && imageName !== void 0 ? imageName : repositoryName}`;
 }
@@ -10554,8 +10554,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deleteAllTags = exports.isFixtureRepo = exports.filteredTags = exports.tag = exports.commit = exports.isMainBranch = exports.currentBranch = exports.reset = exports.checkout = exports.repoUrl = exports.clone = exports.initRepo = exports.setupUser = void 0;
-const exec = __importStar(__nccwpck_require__(71514));
 const fs_1 = __nccwpck_require__(35747);
+const exec = __importStar(__nccwpck_require__(71514));
 const exec_1 = __nccwpck_require__(92149);
 async function setupUser(username = 'Wolfbot', email = 'noreply@wealthsimple.com', execFn = exec.exec) {
     return Promise.all([
@@ -10753,10 +10753,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.test = exports.publish = exports.lint = exports.dependencies = void 0;
+exports.test = exports.security = exports.publish = exports.lint = exports.dependencies = void 0;
 exports.dependencies = __importStar(__nccwpck_require__(42916));
 exports.lint = __importStar(__nccwpck_require__(6577));
 exports.publish = __importStar(__nccwpck_require__(25190));
+exports.security = __importStar(__nccwpck_require__(33690));
 exports.test = __importStar(__nccwpck_require__(11376));
 
 
@@ -10815,8 +10816,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getWorkspaces = exports.isMonorepo = exports.getVersion = exports.parsePackageFile = void 0;
-const globby_1 = __importDefault(__nccwpck_require__(99319));
 const path_1 = __nccwpck_require__(85622);
+const globby_1 = __importDefault(__nccwpck_require__(99319));
 function parsePackageFile() {
     return __nccwpck_require__(60306);
 }
@@ -10875,11 +10876,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.buildConfiguration = exports.runSemanticRelease = exports.runPublishPackage = exports.runYarnPublish = exports.checkoutMain = exports.installPublishPackage = exports.setNpmAuth = exports.publishNonMonorepo = exports.publishMonorepo = exports.run = void 0;
-const core_1 = __nccwpck_require__(97182);
-const exec_1 = __nccwpck_require__(71514);
 const assert = __importStar(__nccwpck_require__(42357));
 const fs_1 = __nccwpck_require__(35747);
 const path = __importStar(__nccwpck_require__(85622));
+const exec_1 = __nccwpck_require__(71514);
+const core_1 = __nccwpck_require__(97182);
 const semantic_release_1 = __importDefault(__nccwpck_require__(79017));
 const git = __importStar(__nccwpck_require__(89390));
 const pkg = __importStar(__nccwpck_require__(75996));
@@ -11021,6 +11022,20 @@ exports.buildConfiguration = buildConfiguration;
 
 /***/ }),
 
+/***/ 33690:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.run = void 0;
+const exec_1 = __nccwpck_require__(71514);
+const run = async (execFn = exec_1.exec) => execFn('yarn run security');
+exports.run = run;
+
+
+/***/ }),
+
 /***/ 11376:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -11067,7 +11082,7 @@ exports.runTests = runTests;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isBundled = void 0;
+exports.isRakeTaskAvailable = exports.isBundled = void 0;
 const exec_1 = __nccwpck_require__(71514);
 async function isBundled(gemName, execFn = exec_1.exec) {
     let gemNames = '';
@@ -11077,6 +11092,14 @@ async function isBundled(gemName, execFn = exec_1.exec) {
     return gemNames.split('\n').includes(gemName);
 }
 exports.isBundled = isBundled;
+async function isRakeTaskAvailable(taskName, execFn = exec_1.exec) {
+    let taskNames = '';
+    await execFn('bundle', ['exec', 'rake', '--tasks', '--all'], {
+        listeners: { stdout: (data) => (taskNames += data.toString()) },
+    });
+    return taskNames.includes(taskName);
+}
+exports.isRakeTaskAvailable = isRakeTaskAvailable;
 
 
 /***/ }),
@@ -11141,12 +11164,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runYamllint = exports.runBrakeman = exports.runRubocop = exports.runBundleAudit = exports.run = void 0;
-const bundle = __importStar(__nccwpck_require__(15140));
+const path = __importStar(__nccwpck_require__(85622));
 const core = __importStar(__nccwpck_require__(97182));
 const exec = __importStar(__nccwpck_require__(71514));
-const file = __importStar(__nccwpck_require__(35802));
 const io = __importStar(__nccwpck_require__(11998));
-const path = __importStar(__nccwpck_require__(85622));
+const file = __importStar(__nccwpck_require__(35802));
+const bundle = __importStar(__nccwpck_require__(15140));
 async function run(execFn = exec.exec) {
     const lintYaml = core.getInput('lint_yaml', { required: false }) === 'true';
     if (lintYaml) {
@@ -11245,6 +11268,55 @@ exports.run = run;
 
 /***/ }),
 
+/***/ 9119:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.dropDb = exports.setupDb = void 0;
+const exec_1 = __nccwpck_require__(71514);
+const bundle_1 = __nccwpck_require__(15140);
+async function setupDb(railsEnv, execFn = exec_1.exec) {
+    const isRakeBundled = await bundle_1.isBundled('rake', execFn);
+    if (!isRakeBundled) {
+        return 0;
+    }
+    if ((await bundle_1.isRakeTaskAvailable('db:setup', execFn)) &&
+        (await bundle_1.isRakeTaskAvailable('db:schema:load', execFn))) {
+        const config = {
+            env: {
+                ...process.env,
+                RAILS_ENV: railsEnv,
+            },
+        };
+        await execFn('bundle', ['exec', 'rake', 'db:setup'], config);
+        return execFn('bundle', ['exec', 'rake', 'db:schema:load'], config);
+    }
+    return 0;
+}
+exports.setupDb = setupDb;
+async function dropDb(railsEnv, execFn = exec_1.exec) {
+    const isRakeBundled = await bundle_1.isBundled('rake', execFn);
+    if (!isRakeBundled) {
+        return 0;
+    }
+    if (await bundle_1.isRakeTaskAvailable('db:drop', execFn)) {
+        const config = {
+            env: {
+                ...process.env,
+                RAILS_ENV: railsEnv,
+            },
+        };
+        return execFn('bundle', ['exec', 'rake', 'db:drop'], config);
+    }
+    return 0;
+}
+exports.dropDb = dropDb;
+
+
+/***/ }),
+
 /***/ 36783:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -11270,10 +11342,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.setupDb = exports.buildConfiguration = exports.rspecCommand = exports.environment = void 0;
+exports.run = exports.buildConfiguration = exports.rspecCommand = exports.environment = void 0;
 const exec_1 = __nccwpck_require__(71514);
 const core = __importStar(__nccwpck_require__(97182));
-const bundle_1 = __nccwpck_require__(15140);
+const rails = __importStar(__nccwpck_require__(9119));
 const DATADOG_CONFIGURATION = Object.freeze({
     DATADOG_CI_ENABLED: 'true',
     DD_INTEGRATION_RSPEC_ENABLED: 'true',
@@ -11299,28 +11371,6 @@ async function buildConfiguration() {
     return { isDatadogEnabled, isKnapsackEnabled };
 }
 exports.buildConfiguration = buildConfiguration;
-async function setupDb(execFn = exec_1.exec) {
-    const isRakeBundled = await bundle_1.isBundled('rake', execFn);
-    if (!isRakeBundled) {
-        return 0;
-    }
-    let rakeTasks = '';
-    await execFn('bundle', ['exec', 'rake', '--tasks'], {
-        listeners: { stdout: (data) => (rakeTasks += data.toString()) },
-    });
-    if (rakeTasks.includes('db:create') && rakeTasks.includes('db:schema:load')) {
-        const config = {
-            env: {
-                ...process.env,
-                RAILS_ENV: 'test',
-            },
-        };
-        await execFn('bundle', ['exec', 'rake', 'db:setup'], config);
-        return execFn('bundle', ['exec', 'rake', 'db:schema:load'], config);
-    }
-    return 0;
-}
-exports.setupDb = setupDb;
 async function run(execFn = exec_1.exec) {
     const configuration = await buildConfiguration();
     const env = environment(configuration, process.env);
@@ -11331,7 +11381,7 @@ async function run(execFn = exec_1.exec) {
         }
         return filteredEnv;
     }, {});
-    await setupDb();
+    await rails.setupDb('test');
     return execFn(rspecCommand(configuration), [], { env: envStringValuesOnly });
 }
 exports.run = run;
@@ -11365,14 +11415,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.buildConfiguration = exports.setup = exports.unzippedPath = exports.parameters = exports.latestReleaseUrl = void 0;
+const fs_1 = __nccwpck_require__(35747);
+const path = __importStar(__nccwpck_require__(85622));
+const assert_1 = __nccwpck_require__(42357);
 const core = __importStar(__nccwpck_require__(97182));
 const exec = __importStar(__nccwpck_require__(71514));
-const fs_1 = __nccwpck_require__(35747);
-const file = __importStar(__nccwpck_require__(35802));
 const http = __importStar(__nccwpck_require__(39925));
-const path = __importStar(__nccwpck_require__(85622));
 const tc = __importStar(__nccwpck_require__(27784));
-const assert_1 = __nccwpck_require__(42357);
+const file = __importStar(__nccwpck_require__(35802));
 function latestReleaseUrl(response) {
     var _a, _b, _c;
     return (_c = (_b = (_a = [...response.versions]
@@ -101431,7 +101481,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.16.4","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.18.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^10.5.4","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"testTimeout":90000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.17.1","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.23.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-plugin-import":"^2.22.1","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^11.0.0","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"setupFilesAfterEnv":["./jest/global-test-hooks.ts"],"testTimeout":90000}}');
 
 /***/ }),
 
@@ -101527,7 +101577,7 @@ module.exports = {"i8":"3.3.3"};
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"toolbox-script","version":"1.42.0","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.16.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.22","@types/node":"^15.0.1","@typescript-eslint/eslint-plugin":"^4.22.0","@typescript-eslint/parser":"^4.22.0","@vercel/ncc":"^0.28.3","eslint":"^7.25.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.5","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.5","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
+module.exports = JSON.parse('{"name":"toolbox-script","version":"1.43.0","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.17.1"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.22","@types/node":"^15.0.1","@typescript-eslint/eslint-plugin":"^4.22.0","@typescript-eslint/parser":"^4.22.0","@vercel/ncc":"^0.28.3","eslint":"^7.25.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.5","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.5","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
 
 /***/ }),
 
