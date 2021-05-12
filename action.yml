@@ -48,6 +48,9 @@ inputs:
   nexus_rubygems_login:
     required: false
     description: Login for Nexus RubyGems server
+  patchwork_theme:
+    required: false
+    description: Patchwork theme name for accessibility scan
   sonarqube_host:
     required: false
     description: The SonarQube hostname
