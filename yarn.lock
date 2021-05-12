@@ -1331,10 +1331,10 @@
     enabled "2.0.x"
     kuler "^2.0.0"
 
-"@eslint/eslintrc@^0.4.0":
-  version "0.4.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@eslint/eslintrc/-/eslintrc-0.4.0.tgz#99cc0a0584d72f1df38b900fb062ba995f395547"
-  integrity sha512-2ZPCc+uNbjV5ERJr+aKSPRwZgKd2z11x0EgLvb1PURmUrn9QNRXFqje0Ldq454PfAVyaJYyrDvvIKSFP4NnBog==
+"@eslint/eslintrc@^0.4.1":
+  version "0.4.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@eslint/eslintrc/-/eslintrc-0.4.1.tgz#442763b88cecbe3ee0ec7ca6d6dd6168550cbf14"
+  integrity sha512-5v7TDE9plVhvxQeWLXDTvFvJBdH6pEsdnl2g/dAptmuFEPedQ4Erq5rsDsX+mvAM610IhNaO2W5V1dOOnDKxkQ==
   dependencies:
     ajv "^6.12.4"
     debug "^4.1.1"
@@ -1875,10 +1875,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@types/node/-/node-14.14.35.tgz#42c953a4e2b18ab931f72477e7012172f4ffa313"
   integrity sha512-Lt+wj8NVPx0zUmUwumiVXapmaLUcAk3yPuHCFVXras9k5VT9TdhJqKqGVUQCD60OTMCl0qxJ57OiTL0Mic3Iag==
 
-"@types/node@^15.0.1":
-  version "15.0.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@types/node/-/node-15.0.1.tgz#ef34dea0881028d11398be5bf4e856743e3dc35a"
-  integrity sha512-TMkXt0Ck1y0KKsGr9gJtWGjttxlZnnvDtphxUOSd0bfaR6Q1jle+sPvrzNR1urqYTWMinoKvjKfXUGsumaO1PA==
+"@types/node@^15.0.2":
+  version "15.0.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@types/node/-/node-15.0.2.tgz#51e9c0920d1b45936ea04341aa3e2e58d339fb67"
+  integrity sha512-p68+a+KoxpoB47015IeYZYRrdqMUcpbK8re/zpFB8Ld46LHC1lPEbp3EXgkEhAYEcPvjJF6ZO+869SQ0aH1dcA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -1924,13 +1924,13 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@^4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.22.0.tgz#3d5f29bb59e61a9dba1513d491b059e536e16dbc"
-  integrity sha512-U8SP9VOs275iDXaL08Ln1Fa/wLXfj5aTr/1c0t0j6CdbOnxh+TruXu1p4I0NAvdPBQgoPjHsgKn28mOi0FzfoA==
+"@typescript-eslint/eslint-plugin@^4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.23.0.tgz#29d3c9c81f6200b1fd6d8454cfb007ba176cde80"
+  integrity sha512-tGK1y3KIvdsQEEgq6xNn1DjiFJtl+wn8JJQiETtCbdQxw1vzjXyAaIkEmO2l6Nq24iy3uZBMFQjZ6ECf1QdgGw==
   dependencies:
-    "@typescript-eslint/experimental-utils" "4.22.0"
-    "@typescript-eslint/scope-manager" "4.22.0"
+    "@typescript-eslint/experimental-utils" "4.23.0"
+    "@typescript-eslint/scope-manager" "4.23.0"
     debug "^4.1.1"
     functional-red-black-tree "^1.0.1"
     lodash "^4.17.15"
@@ -1938,15 +1938,15 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@typescript-eslint/experimental-utils@4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/experimental-utils/-/experimental-utils-4.22.0.tgz#68765167cca531178e7b650a53456e6e0bef3b1f"
-  integrity sha512-xJXHHl6TuAxB5AWiVrGhvbGL8/hbiCQ8FiWwObO3r0fnvBdrbWEDy1hlvGQOAWc6qsCWuWMKdVWlLAEMpxnddg==
+"@typescript-eslint/experimental-utils@4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/experimental-utils/-/experimental-utils-4.23.0.tgz#f2059434cd6e5672bfeab2fb03b7c0a20622266f"
+  integrity sha512-WAFNiTDnQfrF3Z2fQ05nmCgPsO5o790vOhmWKXbbYQTO9erE1/YsFot5/LnOUizLzU2eeuz6+U/81KV5/hFTGA==
   dependencies:
     "@types/json-schema" "^7.0.3"
-    "@typescript-eslint/scope-manager" "4.22.0"
-    "@typescript-eslint/types" "4.22.0"
-    "@typescript-eslint/typescript-estree" "4.22.0"
+    "@typescript-eslint/scope-manager" "4.23.0"
+    "@typescript-eslint/types" "4.23.0"
+    "@typescript-eslint/typescript-estree" "4.23.0"
     eslint-scope "^5.0.0"
     eslint-utils "^2.0.0"
 
@@ -1962,14 +1962,14 @@
     eslint-scope "^5.0.0"
     eslint-utils "^2.0.0"
 
-"@typescript-eslint/parser@^4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/parser/-/parser-4.22.0.tgz#e1637327fcf796c641fe55f73530e90b16ac8fe8"
-  integrity sha512-z/bGdBJJZJN76nvAY9DkJANYgK3nlRstRRi74WHm3jjgf2I8AglrSY+6l7ogxOmn55YJ6oKZCLLy+6PW70z15Q==
+"@typescript-eslint/parser@^4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/parser/-/parser-4.23.0.tgz#239315d38e42e852bef43a4b0b01bef78f78911c"
+  integrity sha512-wsvjksHBMOqySy/Pi2Q6UuIuHYbgAMwLczRl4YanEPKW5KVxI9ZzDYh3B5DtcZPQTGRWFJrfcbJ6L01Leybwug==
   dependencies:
-    "@typescript-eslint/scope-manager" "4.22.0"
-    "@typescript-eslint/types" "4.22.0"
-    "@typescript-eslint/typescript-estree" "4.22.0"
+    "@typescript-eslint/scope-manager" "4.23.0"
+    "@typescript-eslint/types" "4.23.0"
+    "@typescript-eslint/typescript-estree" "4.23.0"
     debug "^4.1.1"
 
 "@typescript-eslint/scope-manager@4.18.0":
@@ -1980,23 +1980,23 @@
     "@typescript-eslint/types" "4.18.0"
     "@typescript-eslint/visitor-keys" "4.18.0"
 
-"@typescript-eslint/scope-manager@4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/scope-manager/-/scope-manager-4.22.0.tgz#ed411545e61161a8d702e703a4b7d96ec065b09a"
-  integrity sha512-OcCO7LTdk6ukawUM40wo61WdeoA7NM/zaoq1/2cs13M7GyiF+T4rxuA4xM+6LeHWjWbss7hkGXjFDRcKD4O04Q==
+"@typescript-eslint/scope-manager@4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/scope-manager/-/scope-manager-4.23.0.tgz#8792ef7eacac122e2ec8fa2d30a59b8d9a1f1ce4"
+  integrity sha512-ZZ21PCFxPhI3n0wuqEJK9omkw51wi2bmeKJvlRZPH5YFkcawKOuRMQMnI8mH6Vo0/DoHSeZJnHiIx84LmVQY+w==
   dependencies:
-    "@typescript-eslint/types" "4.22.0"
-    "@typescript-eslint/visitor-keys" "4.22.0"
+    "@typescript-eslint/types" "4.23.0"
+    "@typescript-eslint/visitor-keys" "4.23.0"
 
 "@typescript-eslint/types@4.18.0":
   version "4.18.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/types/-/types-4.18.0.tgz#bebe323f81f2a7e2e320fac9415e60856267584a"
   integrity sha512-/BRociARpj5E+9yQ7cwCF/SNOWwXJ3qhjurMuK2hIFUbr9vTuDeu476Zpu+ptxY2kSxUHDGLLKy+qGq2sOg37A==
 
-"@typescript-eslint/types@4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/types/-/types-4.22.0.tgz#0ca6fde5b68daf6dba133f30959cc0688c8dd0b6"
-  integrity sha512-sW/BiXmmyMqDPO2kpOhSy2Py5w6KvRRsKZnV0c4+0nr4GIcedJwXAq+RHNK4lLVEZAJYFltnnk1tJSlbeS9lYA==
+"@typescript-eslint/types@4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/types/-/types-4.23.0.tgz#da1654c8a5332f4d1645b2d9a1c64193cae3aa3b"
+  integrity sha512-oqkNWyG2SLS7uTWLZf6Sr7Dm02gA5yxiz1RP87tvsmDsguVATdpVguHr4HoGOcFOpCvx9vtCSCyQUGfzq28YCw==
 
 "@typescript-eslint/typescript-estree@4.18.0":
   version "4.18.0"
@@ -2011,13 +2011,13 @@
     semver "^7.3.2"
     tsutils "^3.17.1"
 
-"@typescript-eslint/typescript-estree@4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/typescript-estree/-/typescript-estree-4.22.0.tgz#b5d95d6d366ff3b72f5168c75775a3e46250d05c"
-  integrity sha512-TkIFeu5JEeSs5ze/4NID+PIcVjgoU3cUQUIZnH3Sb1cEn1lBo7StSV5bwPuJQuoxKXlzAObjYTilOEKRuhR5yg==
+"@typescript-eslint/typescript-estree@4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/typescript-estree/-/typescript-estree-4.23.0.tgz#0753b292097523852428a6f5a1aa8ccc1aae6cd9"
+  integrity sha512-5Sty6zPEVZF5fbvrZczfmLCOcby3sfrSPu30qKoY1U3mca5/jvU5cwsPb/CO6Q3ByRjixTMIVsDkqwIxCf/dMw==
   dependencies:
-    "@typescript-eslint/types" "4.22.0"
-    "@typescript-eslint/visitor-keys" "4.22.0"
+    "@typescript-eslint/types" "4.23.0"
+    "@typescript-eslint/visitor-keys" "4.23.0"
     debug "^4.1.1"
     globby "^11.0.1"
     is-glob "^4.0.1"
@@ -2032,18 +2032,18 @@
     "@typescript-eslint/types" "4.18.0"
     eslint-visitor-keys "^2.0.0"
 
-"@typescript-eslint/visitor-keys@4.22.0":
-  version "4.22.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/visitor-keys/-/visitor-keys-4.22.0.tgz#169dae26d3c122935da7528c839f42a8a42f6e47"
-  integrity sha512-nnMu4F+s4o0sll6cBSsTeVsT4cwxB7zECK3dFxzEjPBii9xLpq4yqqsy/FU5zMfan6G60DKZSCXAa3sHJZrcYw==
+"@typescript-eslint/visitor-keys@4.23.0":
+  version "4.23.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@typescript-eslint/visitor-keys/-/visitor-keys-4.23.0.tgz#7215cc977bd3b4ef22467b9023594e32f9e4e455"
+  integrity sha512-5PNe5cmX9pSifit0H+nPoQBXdbNzi5tOEec+3riK+ku4e3er37pKxMKDH5Ct5Y4fhWxcD4spnlYjxi9vXbSpwg==
   dependencies:
-    "@typescript-eslint/types" "4.22.0"
+    "@typescript-eslint/types" "4.23.0"
     eslint-visitor-keys "^2.0.0"
 
-"@vercel/ncc@^0.28.4":
-  version "0.28.4"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.4.tgz#ca83bc00a994c48525d8b83abe32e6edf38551c6"
-  integrity sha512-vQe8WuBMiBgJbRM9TXMSb2zXmaoplH84K91nd2CmIlrXH0F3RjyiO9kdvaZbKbAQ66Mh/hMF2JPtDzbVvsx+Eg==
+"@vercel/ncc@^0.28.5":
+  version "0.28.5"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
+  integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
 "@wealthsimple/actions-toolbox@1.19.1":
   version "1.19.1"
@@ -3842,13 +3842,13 @@ eslint-visitor-keys@^2.0.0:
   resolved "https://nexus.iad.w10external.com/repository/npm/eslint-visitor-keys/-/eslint-visitor-keys-2.0.0.tgz#21fdc8fbcd9c795cc0321f0563702095751511a8"
   integrity sha512-QudtT6av5WXels9WjIM7qz1XD1cWGvX4gGXvp/zBn9nXG02D0utdU3Em2m/QjTnrsk6bBjmCygl3rmj118msQQ==
 
-eslint@^7.25.0:
-  version "7.25.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/eslint/-/eslint-7.25.0.tgz#1309e4404d94e676e3e831b3a3ad2b050031eb67"
-  integrity sha512-TVpSovpvCNpLURIScDRB6g5CYu/ZFq9GfX2hLNIV4dSBKxIWojeDODvYl3t0k0VtMxYeR8OXPCFE5+oHMlGfhw==
+eslint@^7.26.0:
+  version "7.26.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/eslint/-/eslint-7.26.0.tgz#d416fdcdcb3236cd8f282065312813f8c13982f6"
+  integrity sha512-4R1ieRf52/izcZE7AlLy56uIHHDLT74Yzz2Iv2l6kDaYvEu9x+wMB5dZArVL8SYGXSYV2YAg70FcW5Y5nGGNIg==
   dependencies:
     "@babel/code-frame" "7.12.11"
-    "@eslint/eslintrc" "^0.4.0"
+    "@eslint/eslintrc" "^0.4.1"
     ajv "^6.10.0"
     chalk "^4.0.0"
     cross-spawn "^7.0.2"
@@ -7616,10 +7616,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@^2.2.1:
-  version "2.2.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
-  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
+prettier@^2.3.0:
+  version "2.3.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/prettier/-/prettier-2.3.0.tgz#b6a5bf1284026ae640f17f7ff5658a7567fc0d18"
+  integrity sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==
 
 pretty-format@^26.0.0, pretty-format@^26.6.2:
   version "26.6.2"
@@ -9067,10 +9067,10 @@ triple-beam@^1.2.0, triple-beam@^1.3.0:
   resolved "https://nexus.iad.w10external.com/repository/npm/triple-beam/-/triple-beam-1.3.0.tgz#a595214c7298db8339eeeee083e4d10bd8cb8dd9"
   integrity sha512-XrHUvV5HpdLmIj4uVMxHggLbFSZYIn7HEWsqePZcI50pco+MPqJ50wMGY794X7AOOhxOBAjbkqfAbEe/QMp2Lw==
 
-ts-jest@^26.5.5:
-  version "26.5.5"
-  resolved "https://nexus.iad.w10external.com/repository/npm/ts-jest/-/ts-jest-26.5.5.tgz#e40481b6ee4dd162626ba481a2be05fa57160ea5"
-  integrity sha512-7tP4m+silwt1NHqzNRAPjW1BswnAhopTdc2K3HEkRZjF0ZG2F/e/ypVH0xiZIMfItFtD3CX0XFbwPzp9fIEUVg==
+ts-jest@^26.5.6:
+  version "26.5.6"
+  resolved "https://nexus.iad.w10external.com/repository/npm/ts-jest/-/ts-jest-26.5.6.tgz#c32e0746425274e1dfe333f43cd3c800e014ec35"
+  integrity sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==
   dependencies:
     bs-logger "0.x"
     buffer-from "1.x"
