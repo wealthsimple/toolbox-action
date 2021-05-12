@@ -2045,10 +2045,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.3.tgz#9461bdbf334d616759b0e7e5415e2f480b9aa30f"
   integrity sha512-g3gk4D9itbhUQa5MtN7TOdeoQnNLkPDCox5SBaQ/H3Or5lo59TOaZWrLb+x47StiAJ+8DXZS/9MJ67cIBWSsRw==
 
-"@wealthsimple/actions-toolbox@1.18.0":
-  version "1.18.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.18.0.tgz#cc503f5238b7f2b7b678e82c68e8bfd69782e4b6"
-  integrity sha512-l3CaVzbPlxZeytWeL2WzGy7ADNL0RUEYD5xqMQPk9/pLljjedGHi73kp6VthVyPA3n3HLnrTUiA7QykJZMqs4g==
+"@wealthsimple/actions-toolbox@1.19.0":
+  version "1.19.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.19.0.tgz#c8162242326c207bdc1207d048da0bd0015c7b78"
+  integrity sha512-RH2JqSVF8EvnZobItkPHAXtYdNmOLuHOtdGkzNwvxPQBC2bCLJJhViEyqWFOq8cS7qFicmLy32WfdVaAb9f+MA==
   dependencies:
     "@actions/core" "^1.2.6"
     "@actions/exec" "^1.0.4"
