@@ -2158,7 +2158,7 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
   integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
-"@wealthsimple/actions-toolbox@^1.20.3":
+"@wealthsimple/actions-toolbox@1.20.3":
   version "1.20.3"
   resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.20.3.tgz#08614c42926b3414912939088044bc195ec9986a"
   integrity sha512-PVjxncGntHQJEYxXIT7NWFTjNa9PirVSKzTzxIxWd9U1f2AqcMoY95mpGy8RkLwtpEOlhAP8ZGIOTVs3k9sx9w==
