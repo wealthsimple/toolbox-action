@@ -19,6 +19,10 @@ jobs:
       - name: Set npm auth
         run: npm config set _auth "${{ secrets.ACTIONS_NEXUS_NPM_READ_TOKEN }}"
       - name: yarn install
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=name;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: branch
         run: yarn install
       - name: Commit latest actions-toolbox
         run: |
@@ -29,11 +33,14 @@ jobs:
           yarn build
 
           git commit --all --message "feat: update actions-toolbox to ${{ github.event.inputs.version }}"
-          git push origin main
+          git push origin ${{ steps.branch.outputs.name }}
 
-          yarn run semantic-release --branches main
-
-          git tag --force --annotate v1 --message "The latest v1 release [skip ci]"
-          git push --force origin v1
+          if [ "${{ steps.branch.outputs.name }}" = 'main' ]; then
+            yarn run semantic-release --extends ./release/main
+            git tag --force --annotate v1 --message "The latest v1 release [skip ci]"
+            git push --force origin v1
+          else
+            yarn run semantic-release --extends ./release/branches
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
