@@ -2,11 +2,13 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as toolbox from '@wealthsimple/actions-toolbox';
 import { callAsyncFunction } from './async-function';
+import { version as toolboxScriptVersion } from '../package.json';
 
 process.on('unhandledRejection', handleError);
 main().catch(handleError);
 
 async function main(): Promise<void> {
+  core.info(`toolbox-script v${toolboxScriptVersion}`);
   toolbox.version();
 
   const script = core.getInput('script', { required: true });

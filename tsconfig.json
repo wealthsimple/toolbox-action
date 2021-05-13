@@ -3,6 +3,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "strict": true,
     "target": "es2019"
   },
