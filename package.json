@@ -45,15 +45,6 @@
     "ts-jest": "^26.5.6",
     "typescript": "^4.2.4"
   },
-  "release": {
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/npm",
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ]
-  },
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node"

@@ -1,10 +1,8 @@
-<p align="center">
-  <a href="https://github.com/wealthsimple/toolbox-script/actions">
-    <img alt="toolbox-script status" src="https://github.com/wealthsimple/toolbox-script/workflows/pipeline/badge.svg">
-  </a>
-</p>
-
 # Wealthsimple Toolbox Script
+
+[![Github Actions Badge](https://github.com/wealthsimple/toolbox-script/actions/workflows/pipeline.yml/badge.svg)](https://github.com/wealthsimple/toolbox-script/actions)
+
+[![Github Actions Badge](https://github.com/wealthsimple/toolbox-script/actions/workflows/update-main.yml/badge.svg)](https://github.com/wealthsimple/toolbox-script/actions)
 
 _Not meant for public use_. This Action is based on a private package,
 unavailable to the public. Only useful for private Wealthsimple projects.
