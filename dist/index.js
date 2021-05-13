@@ -472,8 +472,8 @@ const os = __importStar(__nccwpck_require__(12087));
 const events = __importStar(__nccwpck_require__(28614));
 const child = __importStar(__nccwpck_require__(63129));
 const path = __importStar(__nccwpck_require__(85622));
-const io = __importStar(__nccwpck_require__(69326));
-const ioUtil = __importStar(__nccwpck_require__(20277));
+const io = __importStar(__nccwpck_require__(47351));
+const ioUtil = __importStar(__nccwpck_require__(81962));
 /* eslint-disable @typescript-eslint/unbound-method */
 const IS_WINDOWS = process.platform === 'win32';
 /*
@@ -1050,505 +1050,6 @@ class ExecState extends events.EventEmitter {
     }
 }
 //# sourceMappingURL=toolrunner.js.map
-
-/***/ }),
-
-/***/ 20277:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const assert_1 = __nccwpck_require__(42357);
-const fs = __nccwpck_require__(35747);
-const path = __nccwpck_require__(85622);
-_a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
-exports.IS_WINDOWS = process.platform === 'win32';
-function exists(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield exports.stat(fsPath);
-        }
-        catch (err) {
-            if (err.code === 'ENOENT') {
-                return false;
-            }
-            throw err;
-        }
-        return true;
-    });
-}
-exports.exists = exists;
-function isDirectory(fsPath, useStat = false) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
-        return stats.isDirectory();
-    });
-}
-exports.isDirectory = isDirectory;
-/**
- * On OSX/Linux, true if path starts with '/'. On Windows, true for paths like:
- * \, \hello, \\hello\share, C:, and C:\hello (and corresponding alternate separator cases).
- */
-function isRooted(p) {
-    p = normalizeSeparators(p);
-    if (!p) {
-        throw new Error('isRooted() parameter "p" cannot be empty');
-    }
-    if (exports.IS_WINDOWS) {
-        return (p.startsWith('\\') || /^[A-Z]:/i.test(p) // e.g. \ or \hello or \\hello
-        ); // e.g. C: or C:\hello
-    }
-    return p.startsWith('/');
-}
-exports.isRooted = isRooted;
-/**
- * Recursively create a directory at `fsPath`.
- *
- * This implementation is optimistic, meaning it attempts to create the full
- * path first, and backs up the path stack from there.
- *
- * @param fsPath The path to create
- * @param maxDepth The maximum recursion depth
- * @param depth The current recursion depth
- */
-function mkdirP(fsPath, maxDepth = 1000, depth = 1) {
-    return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(fsPath, 'a path argument must be provided');
-        fsPath = path.resolve(fsPath);
-        if (depth >= maxDepth)
-            return exports.mkdir(fsPath);
-        try {
-            yield exports.mkdir(fsPath);
-            return;
-        }
-        catch (err) {
-            switch (err.code) {
-                case 'ENOENT': {
-                    yield mkdirP(path.dirname(fsPath), maxDepth, depth + 1);
-                    yield exports.mkdir(fsPath);
-                    return;
-                }
-                default: {
-                    let stats;
-                    try {
-                        stats = yield exports.stat(fsPath);
-                    }
-                    catch (err2) {
-                        throw err;
-                    }
-                    if (!stats.isDirectory())
-                        throw err;
-                }
-            }
-        }
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Best effort attempt to determine whether a file exists and is executable.
- * @param filePath    file path to check
- * @param extensions  additional file extensions to try
- * @return if file exists and is executable, returns the file path. otherwise empty string.
- */
-function tryGetExecutablePath(filePath, extensions) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let stats = undefined;
-        try {
-            // test file exists
-            stats = yield exports.stat(filePath);
-        }
-        catch (err) {
-            if (err.code !== 'ENOENT') {
-                // eslint-disable-next-line no-console
-                console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-            }
-        }
-        if (stats && stats.isFile()) {
-            if (exports.IS_WINDOWS) {
-                // on Windows, test for valid extension
-                const upperExt = path.extname(filePath).toUpperCase();
-                if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
-                    return filePath;
-                }
-            }
-            else {
-                if (isUnixExecutable(stats)) {
-                    return filePath;
-                }
-            }
-        }
-        // try each extension
-        const originalFilePath = filePath;
-        for (const extension of extensions) {
-            filePath = originalFilePath + extension;
-            stats = undefined;
-            try {
-                stats = yield exports.stat(filePath);
-            }
-            catch (err) {
-                if (err.code !== 'ENOENT') {
-                    // eslint-disable-next-line no-console
-                    console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-                }
-            }
-            if (stats && stats.isFile()) {
-                if (exports.IS_WINDOWS) {
-                    // preserve the case of the actual file (since an extension was appended)
-                    try {
-                        const directory = path.dirname(filePath);
-                        const upperName = path.basename(filePath).toUpperCase();
-                        for (const actualName of yield exports.readdir(directory)) {
-                            if (upperName === actualName.toUpperCase()) {
-                                filePath = path.join(directory, actualName);
-                                break;
-                            }
-                        }
-                    }
-                    catch (err) {
-                        // eslint-disable-next-line no-console
-                        console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
-                    }
-                    return filePath;
-                }
-                else {
-                    if (isUnixExecutable(stats)) {
-                        return filePath;
-                    }
-                }
-            }
-        }
-        return '';
-    });
-}
-exports.tryGetExecutablePath = tryGetExecutablePath;
-function normalizeSeparators(p) {
-    p = p || '';
-    if (exports.IS_WINDOWS) {
-        // convert slashes on Windows
-        p = p.replace(/\//g, '\\');
-        // remove redundant slashes
-        return p.replace(/\\\\+/g, '\\');
-    }
-    // remove redundant slashes
-    return p.replace(/\/\/+/g, '/');
-}
-// on Mac/Linux, test the execute bit
-//     R   W  X  R  W X R W X
-//   256 128 64 32 16 8 4 2 1
-function isUnixExecutable(stats) {
-    return ((stats.mode & 1) > 0 ||
-        ((stats.mode & 8) > 0 && stats.gid === process.getgid()) ||
-        ((stats.mode & 64) > 0 && stats.uid === process.getuid()));
-}
-//# sourceMappingURL=io-util.js.map
-
-/***/ }),
-
-/***/ 69326:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const childProcess = __nccwpck_require__(63129);
-const path = __nccwpck_require__(85622);
-const util_1 = __nccwpck_require__(31669);
-const ioUtil = __nccwpck_require__(20277);
-const exec = util_1.promisify(childProcess.exec);
-/**
- * Copies a file or folder.
- * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See CopyOptions.
- */
-function cp(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive } = readCopyOptions(options);
-        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
-        // Dest is an existing file, but not forcing
-        if (destStat && destStat.isFile() && !force) {
-            return;
-        }
-        // If dest is an existing directory, should copy inside.
-        const newDest = destStat && destStat.isDirectory()
-            ? path.join(dest, path.basename(source))
-            : dest;
-        if (!(yield ioUtil.exists(source))) {
-            throw new Error(`no such file or directory: ${source}`);
-        }
-        const sourceStat = yield ioUtil.stat(source);
-        if (sourceStat.isDirectory()) {
-            if (!recursive) {
-                throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-            }
-            else {
-                yield cpDirRecursive(source, newDest, 0, force);
-            }
-        }
-        else {
-            if (path.relative(source, newDest) === '') {
-                // a file cannot be copied to itself
-                throw new Error(`'${newDest}' and '${source}' are the same file`);
-            }
-            yield copyFile(source, newDest, force);
-        }
-    });
-}
-exports.cp = cp;
-/**
- * Moves a path.
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See MoveOptions.
- */
-function mv(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (yield ioUtil.exists(dest)) {
-            let destExists = true;
-            if (yield ioUtil.isDirectory(dest)) {
-                // If dest is directory copy src into dest
-                dest = path.join(dest, path.basename(source));
-                destExists = yield ioUtil.exists(dest);
-            }
-            if (destExists) {
-                if (options.force == null || options.force) {
-                    yield rmRF(dest);
-                }
-                else {
-                    throw new Error('Destination already exists');
-                }
-            }
-        }
-        yield mkdirP(path.dirname(dest));
-        yield ioUtil.rename(source, dest);
-    });
-}
-exports.mv = mv;
-/**
- * Remove a path recursively with force
- *
- * @param inputPath path to remove
- */
-function rmRF(inputPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (ioUtil.IS_WINDOWS) {
-            // Node doesn't provide a delete operation, only an unlink function. This means that if the file is being used by another
-            // program (e.g. antivirus), it won't be deleted. To address this, we shell out the work to rd/del.
-            try {
-                if (yield ioUtil.isDirectory(inputPath, true)) {
-                    yield exec(`rd /s /q "${inputPath}"`);
-                }
-                else {
-                    yield exec(`del /f /a "${inputPath}"`);
-                }
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-            // Shelling out fails to remove a symlink folder with missing source, this unlink catches that
-            try {
-                yield ioUtil.unlink(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-        }
-        else {
-            let isDir = false;
-            try {
-                isDir = yield ioUtil.isDirectory(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-                return;
-            }
-            if (isDir) {
-                yield exec(`rm -rf "${inputPath}"`);
-            }
-            else {
-                yield ioUtil.unlink(inputPath);
-            }
-        }
-    });
-}
-exports.rmRF = rmRF;
-/**
- * Make a directory.  Creates the full path with folders in between
- * Will throw if it fails
- *
- * @param   fsPath        path to create
- * @returns Promise<void>
- */
-function mkdirP(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield ioUtil.mkdirP(fsPath);
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Returns path of a tool had the tool actually been invoked.  Resolves via paths.
- * If you check and the tool does not exist, it will throw.
- *
- * @param     tool              name of the tool
- * @param     check             whether to check if tool exists
- * @returns   Promise<string>   path to tool
- */
-function which(tool, check) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-            throw new Error("parameter 'tool' is required");
-        }
-        // recursive when check=true
-        if (check) {
-            const result = yield which(tool, false);
-            if (!result) {
-                if (ioUtil.IS_WINDOWS) {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
-                }
-                else {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
-                }
-            }
-        }
-        try {
-            // build the list of extensions to try
-            const extensions = [];
-            if (ioUtil.IS_WINDOWS && process.env.PATHEXT) {
-                for (const extension of process.env.PATHEXT.split(path.delimiter)) {
-                    if (extension) {
-                        extensions.push(extension);
-                    }
-                }
-            }
-            // if it's rooted, return it if exists. otherwise return empty.
-            if (ioUtil.isRooted(tool)) {
-                const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-                return '';
-            }
-            // if any path separators, return empty
-            if (tool.includes('/') || (ioUtil.IS_WINDOWS && tool.includes('\\'))) {
-                return '';
-            }
-            // build the list of directories
-            //
-            // Note, technically "where" checks the current directory on Windows. From a toolkit perspective,
-            // it feels like we should not do this. Checking the current directory seems like more of a use
-            // case of a shell, and the which() function exposed by the toolkit should strive for consistency
-            // across platforms.
-            const directories = [];
-            if (process.env.PATH) {
-                for (const p of process.env.PATH.split(path.delimiter)) {
-                    if (p) {
-                        directories.push(p);
-                    }
-                }
-            }
-            // return the first match
-            for (const directory of directories) {
-                const filePath = yield ioUtil.tryGetExecutablePath(directory + path.sep + tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-            }
-            return '';
-        }
-        catch (err) {
-            throw new Error(`which failed with message ${err.message}`);
-        }
-    });
-}
-exports.which = which;
-function readCopyOptions(options) {
-    const force = options.force == null ? true : options.force;
-    const recursive = Boolean(options.recursive);
-    return { force, recursive };
-}
-function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Ensure there is not a run away recursive copy
-        if (currentDepth >= 255)
-            return;
-        currentDepth++;
-        yield mkdirP(destDir);
-        const files = yield ioUtil.readdir(sourceDir);
-        for (const fileName of files) {
-            const srcFile = `${sourceDir}/${fileName}`;
-            const destFile = `${destDir}/${fileName}`;
-            const srcFileStat = yield ioUtil.lstat(srcFile);
-            if (srcFileStat.isDirectory()) {
-                // Recurse
-                yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-            }
-            else {
-                yield copyFile(srcFile, destFile, force);
-            }
-        }
-        // Change the mode for the newly created directory
-        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
-    });
-}
-// Buffered file copy
-function copyFile(srcFile, destFile, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
-            // unlink/re-link it
-            try {
-                yield ioUtil.lstat(destFile);
-                yield ioUtil.unlink(destFile);
-            }
-            catch (e) {
-                // Try to override file permission
-                if (e.code === 'EPERM') {
-                    yield ioUtil.chmod(destFile, '0666');
-                    yield ioUtil.unlink(destFile);
-                }
-                // other errors = it doesn't exist, no work to do
-            }
-            // Copy over symlink
-            const symlinkFull = yield ioUtil.readlink(srcFile);
-            yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? 'junction' : null);
-        }
-        else if (!(yield ioUtil.exists(destFile)) || force) {
-            yield ioUtil.copyFile(srcFile, destFile);
-        }
-    });
-}
-//# sourceMappingURL=io.js.map
 
 /***/ }),
 
@@ -2713,7 +2214,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const semver = __importStar(__nccwpck_require__(70562));
-const core_1 = __nccwpck_require__(6705);
+const core_1 = __nccwpck_require__(42186);
 // needs to be require for core node modules to be mocked
 /* eslint @typescript-eslint/no-require-imports: 0 */
 const os = __nccwpck_require__(12087);
@@ -2825,7 +2326,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(6705));
+const core = __importStar(__nccwpck_require__(42186));
 /**
  * Internal class for retries
  */
@@ -2905,8 +2406,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(6705));
-const io = __importStar(__nccwpck_require__(32940));
+const core = __importStar(__nccwpck_require__(42186));
+const io = __importStar(__nccwpck_require__(47351));
 const fs = __importStar(__nccwpck_require__(35747));
 const mm = __importStar(__nccwpck_require__(32473));
 const os = __importStar(__nccwpck_require__(12087));
@@ -3490,898 +2991,6 @@ function _unique(values) {
     return Array.from(new Set(values));
 }
 //# sourceMappingURL=tool-cache.js.map
-
-/***/ }),
-
-/***/ 33532:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__nccwpck_require__(12087));
-const utils_1 = __nccwpck_require__(12576);
-/**
- * Commands
- *
- * Command Format:
- *   ::name key=value,key=value::message
- *
- * Examples:
- *   ::warning::This is the message
- *   ::set-env name=MY_VAR::some value
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
-    }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            let first = true;
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        if (first) {
-                            first = false;
-                        }
-                        else {
-                            cmdStr += ',';
-                        }
-                        cmdStr += `${key}=${escapeProperty(val)}`;
-                    }
-                }
-            }
-        }
-        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
-        return cmdStr;
-    }
-}
-function escapeData(s) {
-    return utils_1.toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A');
-}
-function escapeProperty(s) {
-    return utils_1.toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/:/g, '%3A')
-        .replace(/,/g, '%2C');
-}
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 6705:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __nccwpck_require__(33532);
-const file_command_1 = __nccwpck_require__(67637);
-const utils_1 = __nccwpck_require__(12576);
-const os = __importStar(__nccwpck_require__(12087));
-const path = __importStar(__nccwpck_require__(85622));
-/**
- * The code to exit an action
- */
-var ExitCode;
-(function (ExitCode) {
-    /**
-     * A code indicating that the action was successful
-     */
-    ExitCode[ExitCode["Success"] = 0] = "Success";
-    /**
-     * A code indicating that the action was a failure
-     */
-    ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
-//-----------------------------------------------------------------------
-// Variables
-//-----------------------------------------------------------------------
-/**
- * Sets env variable for this action and future actions in the job
- * @param name the name of the variable to set
- * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function exportVariable(name, val) {
-    const convertedVal = utils_1.toCommandValue(val);
-    process.env[name] = convertedVal;
-    const filePath = process.env['GITHUB_ENV'] || '';
-    if (filePath) {
-        const delimiter = '_GitHubActionsFileCommandDelimeter_';
-        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
-        file_command_1.issueCommand('ENV', commandValue);
-    }
-    else {
-        command_1.issueCommand('set-env', { name }, convertedVal);
-    }
-}
-exports.exportVariable = exportVariable;
-/**
- * Registers a secret which will get masked from logs
- * @param secret value of the secret
- */
-function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
-}
-exports.setSecret = setSecret;
-/**
- * Prepends inputPath to the PATH (for this action and future actions)
- * @param inputPath
- */
-function addPath(inputPath) {
-    const filePath = process.env['GITHUB_PATH'] || '';
-    if (filePath) {
-        file_command_1.issueCommand('PATH', inputPath);
-    }
-    else {
-        command_1.issueCommand('add-path', {}, inputPath);
-    }
-    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
-}
-exports.addPath = addPath;
-/**
- * Gets the value of an input.  The value is also trimmed.
- *
- * @param     name     name of the input to get
- * @param     options  optional. See InputOptions.
- * @returns   string
- */
-function getInput(name, options) {
-    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
-    if (options && options.required && !val) {
-        throw new Error(`Input required and not supplied: ${name}`);
-    }
-    return val.trim();
-}
-exports.getInput = getInput;
-/**
- * Sets the value of an output.
- *
- * @param     name     name of the output to set
- * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function setOutput(name, value) {
-    command_1.issueCommand('set-output', { name }, value);
-}
-exports.setOutput = setOutput;
-/**
- * Enables or disables the echoing of commands into stdout for the rest of the step.
- * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
- *
- */
-function setCommandEcho(enabled) {
-    command_1.issue('echo', enabled ? 'on' : 'off');
-}
-exports.setCommandEcho = setCommandEcho;
-//-----------------------------------------------------------------------
-// Results
-//-----------------------------------------------------------------------
-/**
- * Sets the action status to failed.
- * When the action exits it will be with an exit code of 1
- * @param message add error issue message
- */
-function setFailed(message) {
-    process.exitCode = ExitCode.Failure;
-    error(message);
-}
-exports.setFailed = setFailed;
-//-----------------------------------------------------------------------
-// Logging Commands
-//-----------------------------------------------------------------------
-/**
- * Gets whether Actions Step Debug is on or not
- */
-function isDebug() {
-    return process.env['RUNNER_DEBUG'] === '1';
-}
-exports.isDebug = isDebug;
-/**
- * Writes debug message to user log
- * @param message debug message
- */
-function debug(message) {
-    command_1.issueCommand('debug', {}, message);
-}
-exports.debug = debug;
-/**
- * Adds an error issue
- * @param message error issue message. Errors will be converted to string via toString()
- */
-function error(message) {
-    command_1.issue('error', message instanceof Error ? message.toString() : message);
-}
-exports.error = error;
-/**
- * Adds an warning issue
- * @param message warning issue message. Errors will be converted to string via toString()
- */
-function warning(message) {
-    command_1.issue('warning', message instanceof Error ? message.toString() : message);
-}
-exports.warning = warning;
-/**
- * Writes info to log with console.log.
- * @param message info message
- */
-function info(message) {
-    process.stdout.write(message + os.EOL);
-}
-exports.info = info;
-/**
- * Begin an output group.
- *
- * Output until the next `groupEnd` will be foldable in this group
- *
- * @param name The name of the output group
- */
-function startGroup(name) {
-    command_1.issue('group', name);
-}
-exports.startGroup = startGroup;
-/**
- * End an output group.
- */
-function endGroup() {
-    command_1.issue('endgroup');
-}
-exports.endGroup = endGroup;
-/**
- * Wrap an asynchronous function call in a group.
- *
- * Returns the same type as the function itself.
- *
- * @param name The name of the group
- * @param fn The function to wrap in the group
- */
-function group(name, fn) {
-    return __awaiter(this, void 0, void 0, function* () {
-        startGroup(name);
-        let result;
-        try {
-            result = yield fn();
-        }
-        finally {
-            endGroup();
-        }
-        return result;
-    });
-}
-exports.group = group;
-//-----------------------------------------------------------------------
-// Wrapper action state
-//-----------------------------------------------------------------------
-/**
- * Saves state for current action, the state can only be retrieved by this action's post job execution.
- *
- * @param     name     name of the state to store
- * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
-}
-exports.saveState = saveState;
-/**
- * Gets the value of an state set by this action's main execution.
- *
- * @param     name     name of the state to get
- * @returns   string
- */
-function getState(name) {
-    return process.env[`STATE_${name}`] || '';
-}
-exports.getState = getState;
-//# sourceMappingURL=core.js.map
-
-/***/ }),
-
-/***/ 67637:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-// For internal use, subject to change.
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(35747));
-const os = __importStar(__nccwpck_require__(12087));
-const utils_1 = __nccwpck_require__(12576);
-function issueCommand(command, message) {
-    const filePath = process.env[`GITHUB_${command}`];
-    if (!filePath) {
-        throw new Error(`Unable to find environment variable for file command ${command}`);
-    }
-    if (!fs.existsSync(filePath)) {
-        throw new Error(`Missing file at path: ${filePath}`);
-    }
-    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
-        encoding: 'utf8'
-    });
-}
-exports.issueCommand = issueCommand;
-//# sourceMappingURL=file-command.js.map
-
-/***/ }),
-
-/***/ 12576:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
-/***/ 80071:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const assert_1 = __nccwpck_require__(42357);
-const fs = __nccwpck_require__(35747);
-const path = __nccwpck_require__(85622);
-_a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
-exports.IS_WINDOWS = process.platform === 'win32';
-function exists(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield exports.stat(fsPath);
-        }
-        catch (err) {
-            if (err.code === 'ENOENT') {
-                return false;
-            }
-            throw err;
-        }
-        return true;
-    });
-}
-exports.exists = exists;
-function isDirectory(fsPath, useStat = false) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
-        return stats.isDirectory();
-    });
-}
-exports.isDirectory = isDirectory;
-/**
- * On OSX/Linux, true if path starts with '/'. On Windows, true for paths like:
- * \, \hello, \\hello\share, C:, and C:\hello (and corresponding alternate separator cases).
- */
-function isRooted(p) {
-    p = normalizeSeparators(p);
-    if (!p) {
-        throw new Error('isRooted() parameter "p" cannot be empty');
-    }
-    if (exports.IS_WINDOWS) {
-        return (p.startsWith('\\') || /^[A-Z]:/i.test(p) // e.g. \ or \hello or \\hello
-        ); // e.g. C: or C:\hello
-    }
-    return p.startsWith('/');
-}
-exports.isRooted = isRooted;
-/**
- * Recursively create a directory at `fsPath`.
- *
- * This implementation is optimistic, meaning it attempts to create the full
- * path first, and backs up the path stack from there.
- *
- * @param fsPath The path to create
- * @param maxDepth The maximum recursion depth
- * @param depth The current recursion depth
- */
-function mkdirP(fsPath, maxDepth = 1000, depth = 1) {
-    return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(fsPath, 'a path argument must be provided');
-        fsPath = path.resolve(fsPath);
-        if (depth >= maxDepth)
-            return exports.mkdir(fsPath);
-        try {
-            yield exports.mkdir(fsPath);
-            return;
-        }
-        catch (err) {
-            switch (err.code) {
-                case 'ENOENT': {
-                    yield mkdirP(path.dirname(fsPath), maxDepth, depth + 1);
-                    yield exports.mkdir(fsPath);
-                    return;
-                }
-                default: {
-                    let stats;
-                    try {
-                        stats = yield exports.stat(fsPath);
-                    }
-                    catch (err2) {
-                        throw err;
-                    }
-                    if (!stats.isDirectory())
-                        throw err;
-                }
-            }
-        }
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Best effort attempt to determine whether a file exists and is executable.
- * @param filePath    file path to check
- * @param extensions  additional file extensions to try
- * @return if file exists and is executable, returns the file path. otherwise empty string.
- */
-function tryGetExecutablePath(filePath, extensions) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let stats = undefined;
-        try {
-            // test file exists
-            stats = yield exports.stat(filePath);
-        }
-        catch (err) {
-            if (err.code !== 'ENOENT') {
-                // eslint-disable-next-line no-console
-                console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-            }
-        }
-        if (stats && stats.isFile()) {
-            if (exports.IS_WINDOWS) {
-                // on Windows, test for valid extension
-                const upperExt = path.extname(filePath).toUpperCase();
-                if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
-                    return filePath;
-                }
-            }
-            else {
-                if (isUnixExecutable(stats)) {
-                    return filePath;
-                }
-            }
-        }
-        // try each extension
-        const originalFilePath = filePath;
-        for (const extension of extensions) {
-            filePath = originalFilePath + extension;
-            stats = undefined;
-            try {
-                stats = yield exports.stat(filePath);
-            }
-            catch (err) {
-                if (err.code !== 'ENOENT') {
-                    // eslint-disable-next-line no-console
-                    console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-                }
-            }
-            if (stats && stats.isFile()) {
-                if (exports.IS_WINDOWS) {
-                    // preserve the case of the actual file (since an extension was appended)
-                    try {
-                        const directory = path.dirname(filePath);
-                        const upperName = path.basename(filePath).toUpperCase();
-                        for (const actualName of yield exports.readdir(directory)) {
-                            if (upperName === actualName.toUpperCase()) {
-                                filePath = path.join(directory, actualName);
-                                break;
-                            }
-                        }
-                    }
-                    catch (err) {
-                        // eslint-disable-next-line no-console
-                        console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
-                    }
-                    return filePath;
-                }
-                else {
-                    if (isUnixExecutable(stats)) {
-                        return filePath;
-                    }
-                }
-            }
-        }
-        return '';
-    });
-}
-exports.tryGetExecutablePath = tryGetExecutablePath;
-function normalizeSeparators(p) {
-    p = p || '';
-    if (exports.IS_WINDOWS) {
-        // convert slashes on Windows
-        p = p.replace(/\//g, '\\');
-        // remove redundant slashes
-        return p.replace(/\\\\+/g, '\\');
-    }
-    // remove redundant slashes
-    return p.replace(/\/\/+/g, '/');
-}
-// on Mac/Linux, test the execute bit
-//     R   W  X  R  W X R W X
-//   256 128 64 32 16 8 4 2 1
-function isUnixExecutable(stats) {
-    return ((stats.mode & 1) > 0 ||
-        ((stats.mode & 8) > 0 && stats.gid === process.getgid()) ||
-        ((stats.mode & 64) > 0 && stats.uid === process.getuid()));
-}
-//# sourceMappingURL=io-util.js.map
-
-/***/ }),
-
-/***/ 32940:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const childProcess = __nccwpck_require__(63129);
-const path = __nccwpck_require__(85622);
-const util_1 = __nccwpck_require__(31669);
-const ioUtil = __nccwpck_require__(80071);
-const exec = util_1.promisify(childProcess.exec);
-/**
- * Copies a file or folder.
- * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See CopyOptions.
- */
-function cp(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive } = readCopyOptions(options);
-        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
-        // Dest is an existing file, but not forcing
-        if (destStat && destStat.isFile() && !force) {
-            return;
-        }
-        // If dest is an existing directory, should copy inside.
-        const newDest = destStat && destStat.isDirectory()
-            ? path.join(dest, path.basename(source))
-            : dest;
-        if (!(yield ioUtil.exists(source))) {
-            throw new Error(`no such file or directory: ${source}`);
-        }
-        const sourceStat = yield ioUtil.stat(source);
-        if (sourceStat.isDirectory()) {
-            if (!recursive) {
-                throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-            }
-            else {
-                yield cpDirRecursive(source, newDest, 0, force);
-            }
-        }
-        else {
-            if (path.relative(source, newDest) === '') {
-                // a file cannot be copied to itself
-                throw new Error(`'${newDest}' and '${source}' are the same file`);
-            }
-            yield copyFile(source, newDest, force);
-        }
-    });
-}
-exports.cp = cp;
-/**
- * Moves a path.
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See MoveOptions.
- */
-function mv(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (yield ioUtil.exists(dest)) {
-            let destExists = true;
-            if (yield ioUtil.isDirectory(dest)) {
-                // If dest is directory copy src into dest
-                dest = path.join(dest, path.basename(source));
-                destExists = yield ioUtil.exists(dest);
-            }
-            if (destExists) {
-                if (options.force == null || options.force) {
-                    yield rmRF(dest);
-                }
-                else {
-                    throw new Error('Destination already exists');
-                }
-            }
-        }
-        yield mkdirP(path.dirname(dest));
-        yield ioUtil.rename(source, dest);
-    });
-}
-exports.mv = mv;
-/**
- * Remove a path recursively with force
- *
- * @param inputPath path to remove
- */
-function rmRF(inputPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (ioUtil.IS_WINDOWS) {
-            // Node doesn't provide a delete operation, only an unlink function. This means that if the file is being used by another
-            // program (e.g. antivirus), it won't be deleted. To address this, we shell out the work to rd/del.
-            try {
-                if (yield ioUtil.isDirectory(inputPath, true)) {
-                    yield exec(`rd /s /q "${inputPath}"`);
-                }
-                else {
-                    yield exec(`del /f /a "${inputPath}"`);
-                }
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-            // Shelling out fails to remove a symlink folder with missing source, this unlink catches that
-            try {
-                yield ioUtil.unlink(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-        }
-        else {
-            let isDir = false;
-            try {
-                isDir = yield ioUtil.isDirectory(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-                return;
-            }
-            if (isDir) {
-                yield exec(`rm -rf "${inputPath}"`);
-            }
-            else {
-                yield ioUtil.unlink(inputPath);
-            }
-        }
-    });
-}
-exports.rmRF = rmRF;
-/**
- * Make a directory.  Creates the full path with folders in between
- * Will throw if it fails
- *
- * @param   fsPath        path to create
- * @returns Promise<void>
- */
-function mkdirP(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield ioUtil.mkdirP(fsPath);
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Returns path of a tool had the tool actually been invoked.  Resolves via paths.
- * If you check and the tool does not exist, it will throw.
- *
- * @param     tool              name of the tool
- * @param     check             whether to check if tool exists
- * @returns   Promise<string>   path to tool
- */
-function which(tool, check) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-            throw new Error("parameter 'tool' is required");
-        }
-        // recursive when check=true
-        if (check) {
-            const result = yield which(tool, false);
-            if (!result) {
-                if (ioUtil.IS_WINDOWS) {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
-                }
-                else {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
-                }
-            }
-        }
-        try {
-            // build the list of extensions to try
-            const extensions = [];
-            if (ioUtil.IS_WINDOWS && process.env.PATHEXT) {
-                for (const extension of process.env.PATHEXT.split(path.delimiter)) {
-                    if (extension) {
-                        extensions.push(extension);
-                    }
-                }
-            }
-            // if it's rooted, return it if exists. otherwise return empty.
-            if (ioUtil.isRooted(tool)) {
-                const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-                return '';
-            }
-            // if any path separators, return empty
-            if (tool.includes('/') || (ioUtil.IS_WINDOWS && tool.includes('\\'))) {
-                return '';
-            }
-            // build the list of directories
-            //
-            // Note, technically "where" checks the current directory on Windows. From a toolkit perspective,
-            // it feels like we should not do this. Checking the current directory seems like more of a use
-            // case of a shell, and the which() function exposed by the toolkit should strive for consistency
-            // across platforms.
-            const directories = [];
-            if (process.env.PATH) {
-                for (const p of process.env.PATH.split(path.delimiter)) {
-                    if (p) {
-                        directories.push(p);
-                    }
-                }
-            }
-            // return the first match
-            for (const directory of directories) {
-                const filePath = yield ioUtil.tryGetExecutablePath(directory + path.sep + tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-            }
-            return '';
-        }
-        catch (err) {
-            throw new Error(`which failed with message ${err.message}`);
-        }
-    });
-}
-exports.which = which;
-function readCopyOptions(options) {
-    const force = options.force == null ? true : options.force;
-    const recursive = Boolean(options.recursive);
-    return { force, recursive };
-}
-function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Ensure there is not a run away recursive copy
-        if (currentDepth >= 255)
-            return;
-        currentDepth++;
-        yield mkdirP(destDir);
-        const files = yield ioUtil.readdir(sourceDir);
-        for (const fileName of files) {
-            const srcFile = `${sourceDir}/${fileName}`;
-            const destFile = `${destDir}/${fileName}`;
-            const srcFileStat = yield ioUtil.lstat(srcFile);
-            if (srcFileStat.isDirectory()) {
-                // Recurse
-                yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-            }
-            else {
-                yield copyFile(srcFile, destFile, force);
-            }
-        }
-        // Change the mode for the newly created directory
-        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
-    });
-}
-// Buffered file copy
-function copyFile(srcFile, destFile, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
-            // unlink/re-link it
-            try {
-                yield ioUtil.lstat(destFile);
-                yield ioUtil.unlink(destFile);
-            }
-            catch (e) {
-                // Try to override file permission
-                if (e.code === 'EPERM') {
-                    yield ioUtil.chmod(destFile, '0666');
-                    yield ioUtil.unlink(destFile);
-                }
-                // other errors = it doesn't exist, no work to do
-            }
-            // Copy over symlink
-            const symlinkFull = yield ioUtil.readlink(srcFile);
-            yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? 'junction' : null);
-        }
-        else if (!(yield ioUtil.exists(destFile)) || force) {
-            yield ioUtil.copyFile(srcFile, destFile);
-        }
-    });
-}
-//# sourceMappingURL=io.js.map
 
 /***/ }),
 
@@ -8495,1873 +7104,6 @@ module.exports = class SemanticReleaseError extends Error {
 
 /***/ }),
 
-/***/ 3551:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const os = __importStar(__nccwpck_require__(12087));
-const utils_1 = __nccwpck_require__(95584);
-/**
- * Commands
- *
- * Command Format:
- *   ::name key=value,key=value::message
- *
- * Examples:
- *   ::warning::This is the message
- *   ::set-env name=MY_VAR::some value
- */
-function issueCommand(command, properties, message) {
-    const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
-}
-exports.issueCommand = issueCommand;
-function issue(name, message = '') {
-    issueCommand(name, {}, message);
-}
-exports.issue = issue;
-const CMD_STRING = '::';
-class Command {
-    constructor(command, properties, message) {
-        if (!command) {
-            command = 'missing.command';
-        }
-        this.command = command;
-        this.properties = properties;
-        this.message = message;
-    }
-    toString() {
-        let cmdStr = CMD_STRING + this.command;
-        if (this.properties && Object.keys(this.properties).length > 0) {
-            cmdStr += ' ';
-            let first = true;
-            for (const key in this.properties) {
-                if (this.properties.hasOwnProperty(key)) {
-                    const val = this.properties[key];
-                    if (val) {
-                        if (first) {
-                            first = false;
-                        }
-                        else {
-                            cmdStr += ',';
-                        }
-                        cmdStr += `${key}=${escapeProperty(val)}`;
-                    }
-                }
-            }
-        }
-        cmdStr += `${CMD_STRING}${escapeData(this.message)}`;
-        return cmdStr;
-    }
-}
-function escapeData(s) {
-    return utils_1.toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A');
-}
-function escapeProperty(s) {
-    return utils_1.toCommandValue(s)
-        .replace(/%/g, '%25')
-        .replace(/\r/g, '%0D')
-        .replace(/\n/g, '%0A')
-        .replace(/:/g, '%3A')
-        .replace(/,/g, '%2C');
-}
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 97182:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const command_1 = __nccwpck_require__(3551);
-const file_command_1 = __nccwpck_require__(88232);
-const utils_1 = __nccwpck_require__(95584);
-const os = __importStar(__nccwpck_require__(12087));
-const path = __importStar(__nccwpck_require__(85622));
-/**
- * The code to exit an action
- */
-var ExitCode;
-(function (ExitCode) {
-    /**
-     * A code indicating that the action was successful
-     */
-    ExitCode[ExitCode["Success"] = 0] = "Success";
-    /**
-     * A code indicating that the action was a failure
-     */
-    ExitCode[ExitCode["Failure"] = 1] = "Failure";
-})(ExitCode = exports.ExitCode || (exports.ExitCode = {}));
-//-----------------------------------------------------------------------
-// Variables
-//-----------------------------------------------------------------------
-/**
- * Sets env variable for this action and future actions in the job
- * @param name the name of the variable to set
- * @param val the value of the variable. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function exportVariable(name, val) {
-    const convertedVal = utils_1.toCommandValue(val);
-    process.env[name] = convertedVal;
-    const filePath = process.env['GITHUB_ENV'] || '';
-    if (filePath) {
-        const delimiter = '_GitHubActionsFileCommandDelimeter_';
-        const commandValue = `${name}<<${delimiter}${os.EOL}${convertedVal}${os.EOL}${delimiter}`;
-        file_command_1.issueCommand('ENV', commandValue);
-    }
-    else {
-        command_1.issueCommand('set-env', { name }, convertedVal);
-    }
-}
-exports.exportVariable = exportVariable;
-/**
- * Registers a secret which will get masked from logs
- * @param secret value of the secret
- */
-function setSecret(secret) {
-    command_1.issueCommand('add-mask', {}, secret);
-}
-exports.setSecret = setSecret;
-/**
- * Prepends inputPath to the PATH (for this action and future actions)
- * @param inputPath
- */
-function addPath(inputPath) {
-    const filePath = process.env['GITHUB_PATH'] || '';
-    if (filePath) {
-        file_command_1.issueCommand('PATH', inputPath);
-    }
-    else {
-        command_1.issueCommand('add-path', {}, inputPath);
-    }
-    process.env['PATH'] = `${inputPath}${path.delimiter}${process.env['PATH']}`;
-}
-exports.addPath = addPath;
-/**
- * Gets the value of an input.  The value is also trimmed.
- *
- * @param     name     name of the input to get
- * @param     options  optional. See InputOptions.
- * @returns   string
- */
-function getInput(name, options) {
-    const val = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`] || '';
-    if (options && options.required && !val) {
-        throw new Error(`Input required and not supplied: ${name}`);
-    }
-    return val.trim();
-}
-exports.getInput = getInput;
-/**
- * Sets the value of an output.
- *
- * @param     name     name of the output to set
- * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function setOutput(name, value) {
-    command_1.issueCommand('set-output', { name }, value);
-}
-exports.setOutput = setOutput;
-/**
- * Enables or disables the echoing of commands into stdout for the rest of the step.
- * Echoing is disabled by default if ACTIONS_STEP_DEBUG is not set.
- *
- */
-function setCommandEcho(enabled) {
-    command_1.issue('echo', enabled ? 'on' : 'off');
-}
-exports.setCommandEcho = setCommandEcho;
-//-----------------------------------------------------------------------
-// Results
-//-----------------------------------------------------------------------
-/**
- * Sets the action status to failed.
- * When the action exits it will be with an exit code of 1
- * @param message add error issue message
- */
-function setFailed(message) {
-    process.exitCode = ExitCode.Failure;
-    error(message);
-}
-exports.setFailed = setFailed;
-//-----------------------------------------------------------------------
-// Logging Commands
-//-----------------------------------------------------------------------
-/**
- * Gets whether Actions Step Debug is on or not
- */
-function isDebug() {
-    return process.env['RUNNER_DEBUG'] === '1';
-}
-exports.isDebug = isDebug;
-/**
- * Writes debug message to user log
- * @param message debug message
- */
-function debug(message) {
-    command_1.issueCommand('debug', {}, message);
-}
-exports.debug = debug;
-/**
- * Adds an error issue
- * @param message error issue message. Errors will be converted to string via toString()
- */
-function error(message) {
-    command_1.issue('error', message instanceof Error ? message.toString() : message);
-}
-exports.error = error;
-/**
- * Adds an warning issue
- * @param message warning issue message. Errors will be converted to string via toString()
- */
-function warning(message) {
-    command_1.issue('warning', message instanceof Error ? message.toString() : message);
-}
-exports.warning = warning;
-/**
- * Writes info to log with console.log.
- * @param message info message
- */
-function info(message) {
-    process.stdout.write(message + os.EOL);
-}
-exports.info = info;
-/**
- * Begin an output group.
- *
- * Output until the next `groupEnd` will be foldable in this group
- *
- * @param name The name of the output group
- */
-function startGroup(name) {
-    command_1.issue('group', name);
-}
-exports.startGroup = startGroup;
-/**
- * End an output group.
- */
-function endGroup() {
-    command_1.issue('endgroup');
-}
-exports.endGroup = endGroup;
-/**
- * Wrap an asynchronous function call in a group.
- *
- * Returns the same type as the function itself.
- *
- * @param name The name of the group
- * @param fn The function to wrap in the group
- */
-function group(name, fn) {
-    return __awaiter(this, void 0, void 0, function* () {
-        startGroup(name);
-        let result;
-        try {
-            result = yield fn();
-        }
-        finally {
-            endGroup();
-        }
-        return result;
-    });
-}
-exports.group = group;
-//-----------------------------------------------------------------------
-// Wrapper action state
-//-----------------------------------------------------------------------
-/**
- * Saves state for current action, the state can only be retrieved by this action's post job execution.
- *
- * @param     name     name of the state to store
- * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function saveState(name, value) {
-    command_1.issueCommand('save-state', { name }, value);
-}
-exports.saveState = saveState;
-/**
- * Gets the value of an state set by this action's main execution.
- *
- * @param     name     name of the state to get
- * @returns   string
- */
-function getState(name) {
-    return process.env[`STATE_${name}`] || '';
-}
-exports.getState = getState;
-//# sourceMappingURL=core.js.map
-
-/***/ }),
-
-/***/ 88232:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-// For internal use, subject to change.
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const fs = __importStar(__nccwpck_require__(35747));
-const os = __importStar(__nccwpck_require__(12087));
-const utils_1 = __nccwpck_require__(95584);
-function issueCommand(command, message) {
-    const filePath = process.env[`GITHUB_${command}`];
-    if (!filePath) {
-        throw new Error(`Unable to find environment variable for file command ${command}`);
-    }
-    if (!fs.existsSync(filePath)) {
-        throw new Error(`Missing file at path: ${filePath}`);
-    }
-    fs.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os.EOL}`, {
-        encoding: 'utf8'
-    });
-}
-exports.issueCommand = issueCommand;
-//# sourceMappingURL=file-command.js.map
-
-/***/ }),
-
-/***/ 95584:
-/***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-/**
- * Sanitizes an input into a string so it can be passed into issueCommand safely
- * @param input input to sanitize into a string
- */
-function toCommandValue(input) {
-    if (input === null || input === undefined) {
-        return '';
-    }
-    else if (typeof input === 'string' || input instanceof String) {
-        return input;
-    }
-    return JSON.stringify(input);
-}
-exports.toCommandValue = toCommandValue;
-//# sourceMappingURL=utils.js.map
-
-/***/ }),
-
-/***/ 70788:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var _a;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const assert_1 = __nccwpck_require__(42357);
-const fs = __nccwpck_require__(35747);
-const path = __nccwpck_require__(85622);
-_a = fs.promises, exports.chmod = _a.chmod, exports.copyFile = _a.copyFile, exports.lstat = _a.lstat, exports.mkdir = _a.mkdir, exports.readdir = _a.readdir, exports.readlink = _a.readlink, exports.rename = _a.rename, exports.rmdir = _a.rmdir, exports.stat = _a.stat, exports.symlink = _a.symlink, exports.unlink = _a.unlink;
-exports.IS_WINDOWS = process.platform === 'win32';
-function exists(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield exports.stat(fsPath);
-        }
-        catch (err) {
-            if (err.code === 'ENOENT') {
-                return false;
-            }
-            throw err;
-        }
-        return true;
-    });
-}
-exports.exists = exists;
-function isDirectory(fsPath, useStat = false) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
-        return stats.isDirectory();
-    });
-}
-exports.isDirectory = isDirectory;
-/**
- * On OSX/Linux, true if path starts with '/'. On Windows, true for paths like:
- * \, \hello, \\hello\share, C:, and C:\hello (and corresponding alternate separator cases).
- */
-function isRooted(p) {
-    p = normalizeSeparators(p);
-    if (!p) {
-        throw new Error('isRooted() parameter "p" cannot be empty');
-    }
-    if (exports.IS_WINDOWS) {
-        return (p.startsWith('\\') || /^[A-Z]:/i.test(p) // e.g. \ or \hello or \\hello
-        ); // e.g. C: or C:\hello
-    }
-    return p.startsWith('/');
-}
-exports.isRooted = isRooted;
-/**
- * Recursively create a directory at `fsPath`.
- *
- * This implementation is optimistic, meaning it attempts to create the full
- * path first, and backs up the path stack from there.
- *
- * @param fsPath The path to create
- * @param maxDepth The maximum recursion depth
- * @param depth The current recursion depth
- */
-function mkdirP(fsPath, maxDepth = 1000, depth = 1) {
-    return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(fsPath, 'a path argument must be provided');
-        fsPath = path.resolve(fsPath);
-        if (depth >= maxDepth)
-            return exports.mkdir(fsPath);
-        try {
-            yield exports.mkdir(fsPath);
-            return;
-        }
-        catch (err) {
-            switch (err.code) {
-                case 'ENOENT': {
-                    yield mkdirP(path.dirname(fsPath), maxDepth, depth + 1);
-                    yield exports.mkdir(fsPath);
-                    return;
-                }
-                default: {
-                    let stats;
-                    try {
-                        stats = yield exports.stat(fsPath);
-                    }
-                    catch (err2) {
-                        throw err;
-                    }
-                    if (!stats.isDirectory())
-                        throw err;
-                }
-            }
-        }
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Best effort attempt to determine whether a file exists and is executable.
- * @param filePath    file path to check
- * @param extensions  additional file extensions to try
- * @return if file exists and is executable, returns the file path. otherwise empty string.
- */
-function tryGetExecutablePath(filePath, extensions) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let stats = undefined;
-        try {
-            // test file exists
-            stats = yield exports.stat(filePath);
-        }
-        catch (err) {
-            if (err.code !== 'ENOENT') {
-                // eslint-disable-next-line no-console
-                console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-            }
-        }
-        if (stats && stats.isFile()) {
-            if (exports.IS_WINDOWS) {
-                // on Windows, test for valid extension
-                const upperExt = path.extname(filePath).toUpperCase();
-                if (extensions.some(validExt => validExt.toUpperCase() === upperExt)) {
-                    return filePath;
-                }
-            }
-            else {
-                if (isUnixExecutable(stats)) {
-                    return filePath;
-                }
-            }
-        }
-        // try each extension
-        const originalFilePath = filePath;
-        for (const extension of extensions) {
-            filePath = originalFilePath + extension;
-            stats = undefined;
-            try {
-                stats = yield exports.stat(filePath);
-            }
-            catch (err) {
-                if (err.code !== 'ENOENT') {
-                    // eslint-disable-next-line no-console
-                    console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-                }
-            }
-            if (stats && stats.isFile()) {
-                if (exports.IS_WINDOWS) {
-                    // preserve the case of the actual file (since an extension was appended)
-                    try {
-                        const directory = path.dirname(filePath);
-                        const upperName = path.basename(filePath).toUpperCase();
-                        for (const actualName of yield exports.readdir(directory)) {
-                            if (upperName === actualName.toUpperCase()) {
-                                filePath = path.join(directory, actualName);
-                                break;
-                            }
-                        }
-                    }
-                    catch (err) {
-                        // eslint-disable-next-line no-console
-                        console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
-                    }
-                    return filePath;
-                }
-                else {
-                    if (isUnixExecutable(stats)) {
-                        return filePath;
-                    }
-                }
-            }
-        }
-        return '';
-    });
-}
-exports.tryGetExecutablePath = tryGetExecutablePath;
-function normalizeSeparators(p) {
-    p = p || '';
-    if (exports.IS_WINDOWS) {
-        // convert slashes on Windows
-        p = p.replace(/\//g, '\\');
-        // remove redundant slashes
-        return p.replace(/\\\\+/g, '\\');
-    }
-    // remove redundant slashes
-    return p.replace(/\/\/+/g, '/');
-}
-// on Mac/Linux, test the execute bit
-//     R   W  X  R  W X R W X
-//   256 128 64 32 16 8 4 2 1
-function isUnixExecutable(stats) {
-    return ((stats.mode & 1) > 0 ||
-        ((stats.mode & 8) > 0 && stats.gid === process.getgid()) ||
-        ((stats.mode & 64) > 0 && stats.uid === process.getuid()));
-}
-//# sourceMappingURL=io-util.js.map
-
-/***/ }),
-
-/***/ 11998:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const childProcess = __nccwpck_require__(63129);
-const path = __nccwpck_require__(85622);
-const util_1 = __nccwpck_require__(31669);
-const ioUtil = __nccwpck_require__(70788);
-const exec = util_1.promisify(childProcess.exec);
-/**
- * Copies a file or folder.
- * Based off of shelljs - https://github.com/shelljs/shelljs/blob/9237f66c52e5daa40458f94f9565e18e8132f5a6/src/cp.js
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See CopyOptions.
- */
-function cp(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive } = readCopyOptions(options);
-        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
-        // Dest is an existing file, but not forcing
-        if (destStat && destStat.isFile() && !force) {
-            return;
-        }
-        // If dest is an existing directory, should copy inside.
-        const newDest = destStat && destStat.isDirectory()
-            ? path.join(dest, path.basename(source))
-            : dest;
-        if (!(yield ioUtil.exists(source))) {
-            throw new Error(`no such file or directory: ${source}`);
-        }
-        const sourceStat = yield ioUtil.stat(source);
-        if (sourceStat.isDirectory()) {
-            if (!recursive) {
-                throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-            }
-            else {
-                yield cpDirRecursive(source, newDest, 0, force);
-            }
-        }
-        else {
-            if (path.relative(source, newDest) === '') {
-                // a file cannot be copied to itself
-                throw new Error(`'${newDest}' and '${source}' are the same file`);
-            }
-            yield copyFile(source, newDest, force);
-        }
-    });
-}
-exports.cp = cp;
-/**
- * Moves a path.
- *
- * @param     source    source path
- * @param     dest      destination path
- * @param     options   optional. See MoveOptions.
- */
-function mv(source, dest, options = {}) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (yield ioUtil.exists(dest)) {
-            let destExists = true;
-            if (yield ioUtil.isDirectory(dest)) {
-                // If dest is directory copy src into dest
-                dest = path.join(dest, path.basename(source));
-                destExists = yield ioUtil.exists(dest);
-            }
-            if (destExists) {
-                if (options.force == null || options.force) {
-                    yield rmRF(dest);
-                }
-                else {
-                    throw new Error('Destination already exists');
-                }
-            }
-        }
-        yield mkdirP(path.dirname(dest));
-        yield ioUtil.rename(source, dest);
-    });
-}
-exports.mv = mv;
-/**
- * Remove a path recursively with force
- *
- * @param inputPath path to remove
- */
-function rmRF(inputPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (ioUtil.IS_WINDOWS) {
-            // Node doesn't provide a delete operation, only an unlink function. This means that if the file is being used by another
-            // program (e.g. antivirus), it won't be deleted. To address this, we shell out the work to rd/del.
-            try {
-                if (yield ioUtil.isDirectory(inputPath, true)) {
-                    yield exec(`rd /s /q "${inputPath}"`);
-                }
-                else {
-                    yield exec(`del /f /a "${inputPath}"`);
-                }
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-            // Shelling out fails to remove a symlink folder with missing source, this unlink catches that
-            try {
-                yield ioUtil.unlink(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-            }
-        }
-        else {
-            let isDir = false;
-            try {
-                isDir = yield ioUtil.isDirectory(inputPath);
-            }
-            catch (err) {
-                // if you try to delete a file that doesn't exist, desired result is achieved
-                // other errors are valid
-                if (err.code !== 'ENOENT')
-                    throw err;
-                return;
-            }
-            if (isDir) {
-                yield exec(`rm -rf "${inputPath}"`);
-            }
-            else {
-                yield ioUtil.unlink(inputPath);
-            }
-        }
-    });
-}
-exports.rmRF = rmRF;
-/**
- * Make a directory.  Creates the full path with folders in between
- * Will throw if it fails
- *
- * @param   fsPath        path to create
- * @returns Promise<void>
- */
-function mkdirP(fsPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield ioUtil.mkdirP(fsPath);
-    });
-}
-exports.mkdirP = mkdirP;
-/**
- * Returns path of a tool had the tool actually been invoked.  Resolves via paths.
- * If you check and the tool does not exist, it will throw.
- *
- * @param     tool              name of the tool
- * @param     check             whether to check if tool exists
- * @returns   Promise<string>   path to tool
- */
-function which(tool, check) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-            throw new Error("parameter 'tool' is required");
-        }
-        // recursive when check=true
-        if (check) {
-            const result = yield which(tool, false);
-            if (!result) {
-                if (ioUtil.IS_WINDOWS) {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
-                }
-                else {
-                    throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
-                }
-            }
-        }
-        try {
-            // build the list of extensions to try
-            const extensions = [];
-            if (ioUtil.IS_WINDOWS && process.env.PATHEXT) {
-                for (const extension of process.env.PATHEXT.split(path.delimiter)) {
-                    if (extension) {
-                        extensions.push(extension);
-                    }
-                }
-            }
-            // if it's rooted, return it if exists. otherwise return empty.
-            if (ioUtil.isRooted(tool)) {
-                const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-                return '';
-            }
-            // if any path separators, return empty
-            if (tool.includes('/') || (ioUtil.IS_WINDOWS && tool.includes('\\'))) {
-                return '';
-            }
-            // build the list of directories
-            //
-            // Note, technically "where" checks the current directory on Windows. From a toolkit perspective,
-            // it feels like we should not do this. Checking the current directory seems like more of a use
-            // case of a shell, and the which() function exposed by the toolkit should strive for consistency
-            // across platforms.
-            const directories = [];
-            if (process.env.PATH) {
-                for (const p of process.env.PATH.split(path.delimiter)) {
-                    if (p) {
-                        directories.push(p);
-                    }
-                }
-            }
-            // return the first match
-            for (const directory of directories) {
-                const filePath = yield ioUtil.tryGetExecutablePath(directory + path.sep + tool, extensions);
-                if (filePath) {
-                    return filePath;
-                }
-            }
-            return '';
-        }
-        catch (err) {
-            throw new Error(`which failed with message ${err.message}`);
-        }
-    });
-}
-exports.which = which;
-function readCopyOptions(options) {
-    const force = options.force == null ? true : options.force;
-    const recursive = Boolean(options.recursive);
-    return { force, recursive };
-}
-function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        // Ensure there is not a run away recursive copy
-        if (currentDepth >= 255)
-            return;
-        currentDepth++;
-        yield mkdirP(destDir);
-        const files = yield ioUtil.readdir(sourceDir);
-        for (const fileName of files) {
-            const srcFile = `${sourceDir}/${fileName}`;
-            const destFile = `${destDir}/${fileName}`;
-            const srcFileStat = yield ioUtil.lstat(srcFile);
-            if (srcFileStat.isDirectory()) {
-                // Recurse
-                yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-            }
-            else {
-                yield copyFile(srcFile, destFile, force);
-            }
-        }
-        // Change the mode for the newly created directory
-        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
-    });
-}
-// Buffered file copy
-function copyFile(srcFile, destFile, force) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
-            // unlink/re-link it
-            try {
-                yield ioUtil.lstat(destFile);
-                yield ioUtil.unlink(destFile);
-            }
-            catch (e) {
-                // Try to override file permission
-                if (e.code === 'EPERM') {
-                    yield ioUtil.chmod(destFile, '0666');
-                    yield ioUtil.unlink(destFile);
-                }
-                // other errors = it doesn't exist, no work to do
-            }
-            // Copy over symlink
-            const symlinkFull = yield ioUtil.readlink(srcFile);
-            yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? 'junction' : null);
-        }
-        else if (!(yield ioUtil.exists(destFile)) || force) {
-            yield ioUtil.copyFile(srcFile, destFile);
-        }
-    });
-}
-//# sourceMappingURL=io.js.map
-
-/***/ }),
-
-/***/ 90765:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const {promisify} = __nccwpck_require__(31669);
-const fs = __nccwpck_require__(35747);
-const path = __nccwpck_require__(85622);
-const fastGlob = __nccwpck_require__(43664);
-const gitIgnore = __nccwpck_require__(39070);
-const slash = __nccwpck_require__(97543);
-
-const DEFAULT_IGNORE = [
-	'**/node_modules/**',
-	'**/flow-typed/**',
-	'**/coverage/**',
-	'**/.git'
-];
-
-const readFileP = promisify(fs.readFile);
-
-const mapGitIgnorePatternTo = base => ignore => {
-	if (ignore.startsWith('!')) {
-		return '!' + path.posix.join(base, ignore.slice(1));
-	}
-
-	return path.posix.join(base, ignore);
-};
-
-const parseGitIgnore = (content, options) => {
-	const base = slash(path.relative(options.cwd, path.dirname(options.fileName)));
-
-	return content
-		.split(/\r?\n/)
-		.filter(Boolean)
-		.filter(line => !line.startsWith('#'))
-		.map(mapGitIgnorePatternTo(base));
-};
-
-const reduceIgnore = files => {
-	const ignores = gitIgnore();
-	for (const file of files) {
-		ignores.add(parseGitIgnore(file.content, {
-			cwd: file.cwd,
-			fileName: file.filePath
-		}));
-	}
-
-	return ignores;
-};
-
-const ensureAbsolutePathForCwd = (cwd, p) => {
-	cwd = slash(cwd);
-	if (path.isAbsolute(p)) {
-		if (slash(p).startsWith(cwd)) {
-			return p;
-		}
-
-		throw new Error(`Path ${p} is not in cwd ${cwd}`);
-	}
-
-	return path.join(cwd, p);
-};
-
-const getIsIgnoredPredecate = (ignores, cwd) => {
-	return p => ignores.ignores(slash(path.relative(cwd, ensureAbsolutePathForCwd(cwd, p.path || p))));
-};
-
-const getFile = async (file, cwd) => {
-	const filePath = path.join(cwd, file);
-	const content = await readFileP(filePath, 'utf8');
-
-	return {
-		cwd,
-		filePath,
-		content
-	};
-};
-
-const getFileSync = (file, cwd) => {
-	const filePath = path.join(cwd, file);
-	const content = fs.readFileSync(filePath, 'utf8');
-
-	return {
-		cwd,
-		filePath,
-		content
-	};
-};
-
-const normalizeOptions = ({
-	ignore = [],
-	cwd = slash(process.cwd())
-} = {}) => {
-	return {ignore, cwd};
-};
-
-module.exports = async options => {
-	options = normalizeOptions(options);
-
-	const paths = await fastGlob('**/.gitignore', {
-		ignore: DEFAULT_IGNORE.concat(options.ignore),
-		cwd: options.cwd
-	});
-
-	const files = await Promise.all(paths.map(file => getFile(file, options.cwd)));
-	const ignores = reduceIgnore(files);
-
-	return getIsIgnoredPredecate(ignores, options.cwd);
-};
-
-module.exports.sync = options => {
-	options = normalizeOptions(options);
-
-	const paths = fastGlob.sync('**/.gitignore', {
-		ignore: DEFAULT_IGNORE.concat(options.ignore),
-		cwd: options.cwd
-	});
-
-	const files = paths.map(file => getFileSync(file, options.cwd));
-	const ignores = reduceIgnore(files);
-
-	return getIsIgnoredPredecate(ignores, options.cwd);
-};
-
-
-/***/ }),
-
-/***/ 99319:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const fs = __nccwpck_require__(35747);
-const arrayUnion = __nccwpck_require__(99600);
-const merge2 = __nccwpck_require__(82578);
-const fastGlob = __nccwpck_require__(43664);
-const dirGlob = __nccwpck_require__(12738);
-const gitignore = __nccwpck_require__(90765);
-const {FilterStream, UniqueStream} = __nccwpck_require__(45405);
-
-const DEFAULT_FILTER = () => false;
-
-const isNegative = pattern => pattern[0] === '!';
-
-const assertPatternsInput = patterns => {
-	if (!patterns.every(pattern => typeof pattern === 'string')) {
-		throw new TypeError('Patterns must be a string or an array of strings');
-	}
-};
-
-const checkCwdOption = (options = {}) => {
-	if (!options.cwd) {
-		return;
-	}
-
-	let stat;
-	try {
-		stat = fs.statSync(options.cwd);
-	} catch {
-		return;
-	}
-
-	if (!stat.isDirectory()) {
-		throw new Error('The `cwd` option must be a path to a directory');
-	}
-};
-
-const getPathString = p => p.stats instanceof fs.Stats ? p.path : p;
-
-const generateGlobTasks = (patterns, taskOptions) => {
-	patterns = arrayUnion([].concat(patterns));
-	assertPatternsInput(patterns);
-	checkCwdOption(taskOptions);
-
-	const globTasks = [];
-
-	taskOptions = {
-		ignore: [],
-		expandDirectories: true,
-		...taskOptions
-	};
-
-	for (const [index, pattern] of patterns.entries()) {
-		if (isNegative(pattern)) {
-			continue;
-		}
-
-		const ignore = patterns
-			.slice(index)
-			.filter(pattern => isNegative(pattern))
-			.map(pattern => pattern.slice(1));
-
-		const options = {
-			...taskOptions,
-			ignore: taskOptions.ignore.concat(ignore)
-		};
-
-		globTasks.push({pattern, options});
-	}
-
-	return globTasks;
-};
-
-const globDirs = (task, fn) => {
-	let options = {};
-	if (task.options.cwd) {
-		options.cwd = task.options.cwd;
-	}
-
-	if (Array.isArray(task.options.expandDirectories)) {
-		options = {
-			...options,
-			files: task.options.expandDirectories
-		};
-	} else if (typeof task.options.expandDirectories === 'object') {
-		options = {
-			...options,
-			...task.options.expandDirectories
-		};
-	}
-
-	return fn(task.pattern, options);
-};
-
-const getPattern = (task, fn) => task.options.expandDirectories ? globDirs(task, fn) : [task.pattern];
-
-const getFilterSync = options => {
-	return options && options.gitignore ?
-		gitignore.sync({cwd: options.cwd, ignore: options.ignore}) :
-		DEFAULT_FILTER;
-};
-
-const globToTask = task => glob => {
-	const {options} = task;
-	if (options.ignore && Array.isArray(options.ignore) && options.expandDirectories) {
-		options.ignore = dirGlob.sync(options.ignore);
-	}
-
-	return {
-		pattern: glob,
-		options
-	};
-};
-
-module.exports = async (patterns, options) => {
-	const globTasks = generateGlobTasks(patterns, options);
-
-	const getFilter = async () => {
-		return options && options.gitignore ?
-			gitignore({cwd: options.cwd, ignore: options.ignore}) :
-			DEFAULT_FILTER;
-	};
-
-	const getTasks = async () => {
-		const tasks = await Promise.all(globTasks.map(async task => {
-			const globs = await getPattern(task, dirGlob);
-			return Promise.all(globs.map(globToTask(task)));
-		}));
-
-		return arrayUnion(...tasks);
-	};
-
-	const [filter, tasks] = await Promise.all([getFilter(), getTasks()]);
-	const paths = await Promise.all(tasks.map(task => fastGlob(task.pattern, task.options)));
-
-	return arrayUnion(...paths).filter(path_ => !filter(getPathString(path_)));
-};
-
-module.exports.sync = (patterns, options) => {
-	const globTasks = generateGlobTasks(patterns, options);
-
-	const tasks = [];
-	for (const task of globTasks) {
-		const newTask = getPattern(task, dirGlob.sync).map(globToTask(task));
-		tasks.push(...newTask);
-	}
-
-	const filter = getFilterSync(options);
-
-	let matches = [];
-	for (const task of tasks) {
-		matches = arrayUnion(matches, fastGlob.sync(task.pattern, task.options));
-	}
-
-	return matches.filter(path_ => !filter(path_));
-};
-
-module.exports.stream = (patterns, options) => {
-	const globTasks = generateGlobTasks(patterns, options);
-
-	const tasks = [];
-	for (const task of globTasks) {
-		const newTask = getPattern(task, dirGlob.sync).map(globToTask(task));
-		tasks.push(...newTask);
-	}
-
-	const filter = getFilterSync(options);
-	const filterStream = new FilterStream(p => !filter(p));
-	const uniqueStream = new UniqueStream();
-
-	return merge2(tasks.map(task => fastGlob.stream(task.pattern, task.options)))
-		.pipe(filterStream)
-		.pipe(uniqueStream);
-};
-
-module.exports.generateGlobTasks = generateGlobTasks;
-
-module.exports.hasMagic = (patterns, options) => []
-	.concat(patterns)
-	.some(pattern => fastGlob.isDynamicPattern(pattern, options));
-
-module.exports.gitignore = gitignore;
-
-
-/***/ }),
-
-/***/ 45405:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-"use strict";
-
-const {Transform} = __nccwpck_require__(92413);
-
-class ObjectTransform extends Transform {
-	constructor() {
-		super({
-			objectMode: true
-		});
-	}
-}
-
-class FilterStream extends ObjectTransform {
-	constructor(filter) {
-		super();
-		this._filter = filter;
-	}
-
-	_transform(data, encoding, callback) {
-		if (this._filter(data)) {
-			this.push(data);
-		}
-
-		callback();
-	}
-}
-
-class UniqueStream extends ObjectTransform {
-	constructor() {
-		super();
-		this._pushed = new Set();
-	}
-
-	_transform(data, encoding, callback) {
-		if (!this._pushed.has(data)) {
-			this.push(data);
-			this._pushed.add(data);
-		}
-
-		callback();
-	}
-}
-
-module.exports = {
-	FilterStream,
-	UniqueStream
-};
-
-
-/***/ }),
-
-/***/ 39070:
-/***/ ((module) => {
-
-// A simple implementation of make-array
-function makeArray (subject) {
-  return Array.isArray(subject)
-    ? subject
-    : [subject]
-}
-
-const EMPTY = ''
-const SPACE = ' '
-const ESCAPE = '\\'
-const REGEX_TEST_BLANK_LINE = /^\s+$/
-const REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION = /^\\!/
-const REGEX_REPLACE_LEADING_EXCAPED_HASH = /^\\#/
-const REGEX_SPLITALL_CRLF = /\r?\n/g
-// /foo,
-// ./foo,
-// ../foo,
-// .
-// ..
-const REGEX_TEST_INVALID_PATH = /^\.*\/|^\.+$/
-
-const SLASH = '/'
-const KEY_IGNORE = typeof Symbol !== 'undefined'
-  ? Symbol.for('node-ignore')
-  /* istanbul ignore next */
-  : 'node-ignore'
-
-const define = (object, key, value) =>
-  Object.defineProperty(object, key, {value})
-
-const REGEX_REGEXP_RANGE = /([0-z])-([0-z])/g
-
-// Sanitize the range of a regular expression
-// The cases are complicated, see test cases for details
-const sanitizeRange = range => range.replace(
-  REGEX_REGEXP_RANGE,
-  (match, from, to) => from.charCodeAt(0) <= to.charCodeAt(0)
-    ? match
-    // Invalid range (out of order) which is ok for gitignore rules but
-    //   fatal for JavaScript regular expression, so eliminate it.
-    : EMPTY
-)
-
-// See fixtures #59
-const cleanRangeBackSlash = slashes => {
-  const {length} = slashes
-  return slashes.slice(0, length - length % 2)
-}
-
-// > If the pattern ends with a slash,
-// > it is removed for the purpose of the following description,
-// > but it would only find a match with a directory.
-// > In other words, foo/ will match a directory foo and paths underneath it,
-// > but will not match a regular file or a symbolic link foo
-// >  (this is consistent with the way how pathspec works in general in Git).
-// '`foo/`' will not match regular file '`foo`' or symbolic link '`foo`'
-// -> ignore-rules will not deal with it, because it costs extra `fs.stat` call
-//      you could use option `mark: true` with `glob`
-
-// '`foo/`' should not continue with the '`..`'
-const REPLACERS = [
-
-  // > Trailing spaces are ignored unless they are quoted with backslash ("\")
-  [
-    // (a\ ) -> (a )
-    // (a  ) -> (a)
-    // (a \ ) -> (a  )
-    /\\?\s+$/,
-    match => match.indexOf('\\') === 0
-      ? SPACE
-      : EMPTY
-  ],
-
-  // replace (\ ) with ' '
-  [
-    /\\\s/g,
-    () => SPACE
-  ],
-
-  // Escape metacharacters
-  // which is written down by users but means special for regular expressions.
-
-  // > There are 12 characters with special meanings:
-  // > - the backslash \,
-  // > - the caret ^,
-  // > - the dollar sign $,
-  // > - the period or dot .,
-  // > - the vertical bar or pipe symbol |,
-  // > - the question mark ?,
-  // > - the asterisk or star *,
-  // > - the plus sign +,
-  // > - the opening parenthesis (,
-  // > - the closing parenthesis ),
-  // > - and the opening square bracket [,
-  // > - the opening curly brace {,
-  // > These special characters are often called "metacharacters".
-  [
-    /[\\$.|*+(){^]/g,
-    match => `\\${match}`
-  ],
-
-  [
-    // > a question mark (?) matches a single character
-    /(?!\\)\?/g,
-    () => '[^/]'
-  ],
-
-  // leading slash
-  [
-
-    // > A leading slash matches the beginning of the pathname.
-    // > For example, "/*.c" matches "cat-file.c" but not "mozilla-sha1/sha1.c".
-    // A leading slash matches the beginning of the pathname
-    /^\//,
-    () => '^'
-  ],
-
-  // replace special metacharacter slash after the leading slash
-  [
-    /\//g,
-    () => '\\/'
-  ],
-
-  [
-    // > A leading "**" followed by a slash means match in all directories.
-    // > For example, "**/foo" matches file or directory "foo" anywhere,
-    // > the same as pattern "foo".
-    // > "**/foo/bar" matches file or directory "bar" anywhere that is directly
-    // >   under directory "foo".
-    // Notice that the '*'s have been replaced as '\\*'
-    /^\^*\\\*\\\*\\\//,
-
-    // '**/foo' <-> 'foo'
-    () => '^(?:.*\\/)?'
-  ],
-
-  // starting
-  [
-    // there will be no leading '/'
-    //   (which has been replaced by section "leading slash")
-    // If starts with '**', adding a '^' to the regular expression also works
-    /^(?=[^^])/,
-    function startingReplacer () {
-      // If has a slash `/` at the beginning or middle
-      return !/\/(?!$)/.test(this)
-        // > Prior to 2.22.1
-        // > If the pattern does not contain a slash /,
-        // >   Git treats it as a shell glob pattern
-        // Actually, if there is only a trailing slash,
-        //   git also treats it as a shell glob pattern
-
-        // After 2.22.1 (compatible but clearer)
-        // > If there is a separator at the beginning or middle (or both)
-        // > of the pattern, then the pattern is relative to the directory
-        // > level of the particular .gitignore file itself.
-        // > Otherwise the pattern may also match at any level below
-        // > the .gitignore level.
-        ? '(?:^|\\/)'
-
-        // > Otherwise, Git treats the pattern as a shell glob suitable for
-        // >   consumption by fnmatch(3)
-        : '^'
-    }
-  ],
-
-  // two globstars
-  [
-    // Use lookahead assertions so that we could match more than one `'/**'`
-    /\\\/\\\*\\\*(?=\\\/|$)/g,
-
-    // Zero, one or several directories
-    // should not use '*', or it will be replaced by the next replacer
-
-    // Check if it is not the last `'/**'`
-    (_, index, str) => index + 6 < str.length
-
-      // case: /**/
-      // > A slash followed by two consecutive asterisks then a slash matches
-      // >   zero or more directories.
-      // > For example, "a/**/b" matches "a/b", "a/x/b", "a/x/y/b" and so on.
-      // '/**/'
-      ? '(?:\\/[^\\/]+)*'
-
-      // case: /**
-      // > A trailing `"/**"` matches everything inside.
-
-      // #21: everything inside but it should not include the current folder
-      : '\\/.+'
-  ],
-
-  // intermediate wildcards
-  [
-    // Never replace escaped '*'
-    // ignore rule '\*' will match the path '*'
-
-    // 'abc.*/' -> go
-    // 'abc.*'  -> skip this rule
-    /(^|[^\\]+)\\\*(?=.+)/g,
-
-    // '*.js' matches '.js'
-    // '*.js' doesn't match 'abc'
-    (_, p1) => `${p1}[^\\/]*`
-  ],
-
-  [
-    // unescape, revert step 3 except for back slash
-    // For example, if a user escape a '\\*',
-    // after step 3, the result will be '\\\\\\*'
-    /\\\\\\(?=[$.|*+(){^])/g,
-    () => ESCAPE
-  ],
-
-  [
-    // '\\\\' -> '\\'
-    /\\\\/g,
-    () => ESCAPE
-  ],
-
-  [
-    // > The range notation, e.g. [a-zA-Z],
-    // > can be used to match one of the characters in a range.
-
-    // `\` is escaped by step 3
-    /(\\)?\[([^\]/]*?)(\\*)($|\])/g,
-    (match, leadEscape, range, endEscape, close) => leadEscape === ESCAPE
-      // '\\[bar]' -> '\\\\[bar\\]'
-      ? `\\[${range}${cleanRangeBackSlash(endEscape)}${close}`
-      : close === ']'
-        ? endEscape.length % 2 === 0
-          // A normal case, and it is a range notation
-          // '[bar]'
-          // '[bar\\\\]'
-          ? `[${sanitizeRange(range)}${endEscape}]`
-          // Invalid range notaton
-          // '[bar\\]' -> '[bar\\\\]'
-          : '[]'
-        : '[]'
-  ],
-
-  // ending
-  [
-    // 'js' will not match 'js.'
-    // 'ab' will not match 'abc'
-    /(?:[^*])$/,
-
-    // WTF!
-    // https://git-scm.com/docs/gitignore
-    // changes in [2.22.1](https://git-scm.com/docs/gitignore/2.22.1)
-    // which re-fixes #24, #38
-
-    // > If there is a separator at the end of the pattern then the pattern
-    // > will only match directories, otherwise the pattern can match both
-    // > files and directories.
-
-    // 'js*' will not match 'a.js'
-    // 'js/' will not match 'a.js'
-    // 'js' will match 'a.js' and 'a.js/'
-    match => /\/$/.test(match)
-      // foo/ will not match 'foo'
-      ? `${match}$`
-      // foo matches 'foo' and 'foo/'
-      : `${match}(?=$|\\/$)`
-  ],
-
-  // trailing wildcard
-  [
-    /(\^|\\\/)?\\\*$/,
-    (_, p1) => {
-      const prefix = p1
-        // '\^':
-        // '/*' does not match EMPTY
-        // '/*' does not match everything
-
-        // '\\\/':
-        // 'abc/*' does not match 'abc/'
-        ? `${p1}[^/]+`
-
-        // 'a*' matches 'a'
-        // 'a*' matches 'aa'
-        : '[^/]*'
-
-      return `${prefix}(?=$|\\/$)`
-    }
-  ],
-]
-
-// A simple cache, because an ignore rule only has only one certain meaning
-const regexCache = Object.create(null)
-
-// @param {pattern}
-const makeRegex = (pattern, negative, ignorecase) => {
-  const r = regexCache[pattern]
-  if (r) {
-    return r
-  }
-
-  // const replacers = negative
-  //   ? NEGATIVE_REPLACERS
-  //   : POSITIVE_REPLACERS
-
-  const source = REPLACERS.reduce(
-    (prev, current) => prev.replace(current[0], current[1].bind(pattern)),
-    pattern
-  )
-
-  return regexCache[pattern] = ignorecase
-    ? new RegExp(source, 'i')
-    : new RegExp(source)
-}
-
-const isString = subject => typeof subject === 'string'
-
-// > A blank line matches no files, so it can serve as a separator for readability.
-const checkPattern = pattern => pattern
-  && isString(pattern)
-  && !REGEX_TEST_BLANK_LINE.test(pattern)
-
-  // > A line starting with # serves as a comment.
-  && pattern.indexOf('#') !== 0
-
-const splitPattern = pattern => pattern.split(REGEX_SPLITALL_CRLF)
-
-class IgnoreRule {
-  constructor (
-    origin,
-    pattern,
-    negative,
-    regex
-  ) {
-    this.origin = origin
-    this.pattern = pattern
-    this.negative = negative
-    this.regex = regex
-  }
-}
-
-const createRule = (pattern, ignorecase) => {
-  const origin = pattern
-  let negative = false
-
-  // > An optional prefix "!" which negates the pattern;
-  if (pattern.indexOf('!') === 0) {
-    negative = true
-    pattern = pattern.substr(1)
-  }
-
-  pattern = pattern
-  // > Put a backslash ("\") in front of the first "!" for patterns that
-  // >   begin with a literal "!", for example, `"\!important!.txt"`.
-  .replace(REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION, '!')
-  // > Put a backslash ("\") in front of the first hash for patterns that
-  // >   begin with a hash.
-  .replace(REGEX_REPLACE_LEADING_EXCAPED_HASH, '#')
-
-  const regex = makeRegex(pattern, negative, ignorecase)
-
-  return new IgnoreRule(
-    origin,
-    pattern,
-    negative,
-    regex
-  )
-}
-
-const throwError = (message, Ctor) => {
-  throw new Ctor(message)
-}
-
-const checkPath = (path, originalPath, doThrow) => {
-  if (!isString(path)) {
-    return doThrow(
-      `path must be a string, but got \`${originalPath}\``,
-      TypeError
-    )
-  }
-
-  // We don't know if we should ignore EMPTY, so throw
-  if (!path) {
-    return doThrow(`path must not be empty`, TypeError)
-  }
-
-  // Check if it is a relative path
-  if (checkPath.isNotRelative(path)) {
-    const r = '`path.relative()`d'
-    return doThrow(
-      `path should be a ${r} string, but got "${originalPath}"`,
-      RangeError
-    )
-  }
-
-  return true
-}
-
-const isNotRelative = path => REGEX_TEST_INVALID_PATH.test(path)
-
-checkPath.isNotRelative = isNotRelative
-checkPath.convert = p => p
-
-class Ignore {
-  constructor ({
-    ignorecase = true
-  } = {}) {
-    this._rules = []
-    this._ignorecase = ignorecase
-    define(this, KEY_IGNORE, true)
-    this._initCache()
-  }
-
-  _initCache () {
-    this._ignoreCache = Object.create(null)
-    this._testCache = Object.create(null)
-  }
-
-  _addPattern (pattern) {
-    // #32
-    if (pattern && pattern[KEY_IGNORE]) {
-      this._rules = this._rules.concat(pattern._rules)
-      this._added = true
-      return
-    }
-
-    if (checkPattern(pattern)) {
-      const rule = createRule(pattern, this._ignorecase)
-      this._added = true
-      this._rules.push(rule)
-    }
-  }
-
-  // @param {Array<string> | string | Ignore} pattern
-  add (pattern) {
-    this._added = false
-
-    makeArray(
-      isString(pattern)
-        ? splitPattern(pattern)
-        : pattern
-    ).forEach(this._addPattern, this)
-
-    // Some rules have just added to the ignore,
-    // making the behavior changed.
-    if (this._added) {
-      this._initCache()
-    }
-
-    return this
-  }
-
-  // legacy
-  addPattern (pattern) {
-    return this.add(pattern)
-  }
-
-  //          |           ignored : unignored
-  // negative |   0:0   |   0:1   |   1:0   |   1:1
-  // -------- | ------- | ------- | ------- | --------
-  //     0    |  TEST   |  TEST   |  SKIP   |    X
-  //     1    |  TESTIF |  SKIP   |  TEST   |    X
-
-  // - SKIP: always skip
-  // - TEST: always test
-  // - TESTIF: only test if checkUnignored
-  // - X: that never happen
-
-  // @param {boolean} whether should check if the path is unignored,
-  //   setting `checkUnignored` to `false` could reduce additional
-  //   path matching.
-
-  // @returns {TestResult} true if a file is ignored
-  _testOne (path, checkUnignored) {
-    let ignored = false
-    let unignored = false
-
-    this._rules.forEach(rule => {
-      const {negative} = rule
-      if (
-        unignored === negative && ignored !== unignored
-        || negative && !ignored && !unignored && !checkUnignored
-      ) {
-        return
-      }
-
-      const matched = rule.regex.test(path)
-
-      if (matched) {
-        ignored = !negative
-        unignored = negative
-      }
-    })
-
-    return {
-      ignored,
-      unignored
-    }
-  }
-
-  // @returns {TestResult}
-  _test (originalPath, cache, checkUnignored, slices) {
-    const path = originalPath
-      // Supports nullable path
-      && checkPath.convert(originalPath)
-
-    checkPath(path, originalPath, throwError)
-
-    return this._t(path, cache, checkUnignored, slices)
-  }
-
-  _t (path, cache, checkUnignored, slices) {
-    if (path in cache) {
-      return cache[path]
-    }
-
-    if (!slices) {
-      // path/to/a.js
-      // ['path', 'to', 'a.js']
-      slices = path.split(SLASH)
-    }
-
-    slices.pop()
-
-    // If the path has no parent directory, just test it
-    if (!slices.length) {
-      return cache[path] = this._testOne(path, checkUnignored)
-    }
-
-    const parent = this._t(
-      slices.join(SLASH) + SLASH,
-      cache,
-      checkUnignored,
-      slices
-    )
-
-    // If the path contains a parent directory, check the parent first
-    return cache[path] = parent.ignored
-      // > It is not possible to re-include a file if a parent directory of
-      // >   that file is excluded.
-      ? parent
-      : this._testOne(path, checkUnignored)
-  }
-
-  ignores (path) {
-    return this._test(path, this._ignoreCache, false).ignored
-  }
-
-  createFilter () {
-    return path => !this.ignores(path)
-  }
-
-  filter (paths) {
-    return makeArray(paths).filter(this.createFilter())
-  }
-
-  // @returns {TestResult}
-  test (path) {
-    return this._test(path, this._testCache, true)
-  }
-}
-
-const factory = options => new Ignore(options)
-
-const returnFalse = () => false
-
-const isPathValid = path =>
-  checkPath(path && checkPath.convert(path), path, returnFalse)
-
-factory.isPathValid = isPathValid
-
-// Fixes typescript
-factory.default = factory
-
-module.exports = factory
-
-// Windows
-// --------------------------------------------------------------
-/* istanbul ignore if  */
-if (
-  // Detect `process` so that it can run in browsers.
-  typeof process !== 'undefined'
-  && (
-    process.env && process.env.IGNORE_TEST_WIN32
-    || process.platform === 'win32'
-  )
-) {
-  /* eslint no-control-regex: "off" */
-  const makePosix = str => /^\\\\\?\\/.test(str)
-  || /["<>|\u0000-\u001F]+/u.test(str)
-    ? str
-    : str.replace(/\\/g, '/')
-
-  checkPath.convert = makePosix
-
-  // 'C:\\foo'     <- 'C:\\foo' has been converted to 'C:/'
-  // 'd:\\foo'
-  const REGIX_IS_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i
-  checkPath.isNotRelative = path =>
-    REGIX_IS_WINDOWS_PATH_ABSOLUTE.test(path)
-    || isNotRelative(path)
-}
-
-
-/***/ }),
-
 /***/ 22212:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -10389,7 +7131,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.buildConfiguration = exports.buildArgParameters = exports.tagParameters = exports.image = void 0;
 const assert = __importStar(__nccwpck_require__(42357));
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const exec = __importStar(__nccwpck_require__(71514));
 const github = __importStar(__nccwpck_require__(50842));
 function image({ awsRegion, imageName, repositoryName, }) {
@@ -10743,7 +7485,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.transinator = exports.sonarqube = exports.ruby = exports.javascript = exports.docker = exports.version = exports.run = void 0;
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const package_json_1 = __nccwpck_require__(3523);
 function run() {
     core.info('Hello from actions-toolbox');
@@ -10769,7 +7511,7 @@ exports.transinator = __importStar(__nccwpck_require__(65796));
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const exec_1 = __nccwpck_require__(71514);
 async function run(execFn = exec_1.exec) {
     const patchworkTheme = core_1.getInput('patchwork_theme');
@@ -10796,7 +7538,7 @@ exports.run = run;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runYarnInstall = exports.run = void 0;
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const exec_1 = __nccwpck_require__(71514);
 async function run() {
     return runYarnInstall(buildConfiguration());
@@ -10866,7 +7608,7 @@ exports.uiTest = __importStar(__nccwpck_require__(61615));
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runCheckTypes = exports.runLint = exports.run = void 0;
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const exec_1 = __nccwpck_require__(71514);
 async function run(execFn = exec_1.exec) {
     try {
@@ -10901,7 +7643,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getWorkspaces = exports.isMonorepo = exports.getVersion = exports.parsePackageFile = void 0;
 const path_1 = __nccwpck_require__(85622);
-const globby_1 = __importDefault(__nccwpck_require__(99319));
+const globby_1 = __importDefault(__nccwpck_require__(43398));
 function parsePackageFile() {
     return __nccwpck_require__(60306);
 }
@@ -10964,7 +7706,7 @@ const assert = __importStar(__nccwpck_require__(42357));
 const fs_1 = __nccwpck_require__(35747);
 const path = __importStar(__nccwpck_require__(85622));
 const exec_1 = __nccwpck_require__(71514);
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const semantic_release_1 = __importDefault(__nccwpck_require__(79017));
 const git = __importStar(__nccwpck_require__(89390));
 const pkg = __importStar(__nccwpck_require__(75996));
@@ -11146,7 +7888,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runTests = exports.run = void 0;
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const exec_1 = __nccwpck_require__(71514);
 const sonarqube = __importStar(__nccwpck_require__(76275));
 async function run(execFn = exec_1.exec) {
@@ -11208,7 +7950,7 @@ const getStoryBookVersion = async (execFn) => {
             },
         },
     });
-    const [, storyBookVersion] = (_a = yarnWhyOutput.match(/=> Found "(@storybook\/react@[0-9]+\.[0-9]+\.[0-9]+)"/)) !== null && _a !== void 0 ? _a : [];
+    const [, storyBookVersion] = (_a = yarnWhyOutput.match(/=> Found "@storybook\/(react@[0-9]+\.[0-9]+\.[0-9]+)"/)) !== null && _a !== void 0 ? _a : [];
     return storyBookVersion;
 };
 const getChromaticProjectToken = (packageName) => {
@@ -11360,9 +8102,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.runYamllint = exports.runBrakeman = exports.runRubocop = exports.runBundleAudit = exports.run = void 0;
 const path = __importStar(__nccwpck_require__(85622));
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const exec = __importStar(__nccwpck_require__(71514));
-const io = __importStar(__nccwpck_require__(11998));
+const io = __importStar(__nccwpck_require__(47351));
 const file = __importStar(__nccwpck_require__(35802));
 const bundle = __importStar(__nccwpck_require__(15140));
 async function run(execFn = exec.exec) {
@@ -11443,7 +8185,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const exec = __importStar(__nccwpck_require__(71514));
 const git = __importStar(__nccwpck_require__(89390));
 async function run(execFn = exec.exec) {
@@ -11539,7 +8281,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = exports.buildConfiguration = exports.rspecCommand = exports.environment = void 0;
 const exec_1 = __nccwpck_require__(71514);
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const rails = __importStar(__nccwpck_require__(9119));
 const DATADOG_CONFIGURATION = Object.freeze({
     DATADOG_CI_ENABLED: 'true',
@@ -11613,7 +8355,7 @@ exports.run = exports.buildConfiguration = exports.setup = exports.unzippedPath 
 const fs_1 = __nccwpck_require__(35747);
 const path = __importStar(__nccwpck_require__(85622));
 const assert_1 = __nccwpck_require__(42357);
-const core = __importStar(__nccwpck_require__(97182));
+const core = __importStar(__nccwpck_require__(42186));
 const exec = __importStar(__nccwpck_require__(71514));
 const http = __importStar(__nccwpck_require__(39925));
 const tc = __importStar(__nccwpck_require__(27784));
@@ -11744,7 +8486,7 @@ exports.sync = exports.check = exports.TRANSIFEX_CREDENTIALS_FILE = void 0;
 const fs_1 = __nccwpck_require__(35747);
 const path_1 = __nccwpck_require__(85622);
 const os_1 = __nccwpck_require__(12087);
-const core_1 = __nccwpck_require__(97182);
+const core_1 = __nccwpck_require__(42186);
 const actions_1 = __nccwpck_require__(18336);
 const exec_1 = __nccwpck_require__(71514);
 const DEST_LANG_CODE = 'fr_CA';
@@ -35702,6 +32444,981 @@ module.exports = function globParent(str, opts) {
 
   // remove escape chars and return result
   return str.replace(escaped, '$1');
+};
+
+
+/***/ }),
+
+/***/ 89038:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+const {promisify} = __nccwpck_require__(31669);
+const fs = __nccwpck_require__(35747);
+const path = __nccwpck_require__(85622);
+const fastGlob = __nccwpck_require__(43664);
+const gitIgnore = __nccwpck_require__(12069);
+const slash = __nccwpck_require__(97543);
+
+const DEFAULT_IGNORE = [
+	'**/node_modules/**',
+	'**/flow-typed/**',
+	'**/coverage/**',
+	'**/.git'
+];
+
+const readFileP = promisify(fs.readFile);
+
+const mapGitIgnorePatternTo = base => ignore => {
+	if (ignore.startsWith('!')) {
+		return '!' + path.posix.join(base, ignore.slice(1));
+	}
+
+	return path.posix.join(base, ignore);
+};
+
+const parseGitIgnore = (content, options) => {
+	const base = slash(path.relative(options.cwd, path.dirname(options.fileName)));
+
+	return content
+		.split(/\r?\n/)
+		.filter(Boolean)
+		.filter(line => !line.startsWith('#'))
+		.map(mapGitIgnorePatternTo(base));
+};
+
+const reduceIgnore = files => {
+	const ignores = gitIgnore();
+	for (const file of files) {
+		ignores.add(parseGitIgnore(file.content, {
+			cwd: file.cwd,
+			fileName: file.filePath
+		}));
+	}
+
+	return ignores;
+};
+
+const ensureAbsolutePathForCwd = (cwd, p) => {
+	cwd = slash(cwd);
+	if (path.isAbsolute(p)) {
+		if (slash(p).startsWith(cwd)) {
+			return p;
+		}
+
+		throw new Error(`Path ${p} is not in cwd ${cwd}`);
+	}
+
+	return path.join(cwd, p);
+};
+
+const getIsIgnoredPredecate = (ignores, cwd) => {
+	return p => ignores.ignores(slash(path.relative(cwd, ensureAbsolutePathForCwd(cwd, p.path || p))));
+};
+
+const getFile = async (file, cwd) => {
+	const filePath = path.join(cwd, file);
+	const content = await readFileP(filePath, 'utf8');
+
+	return {
+		cwd,
+		filePath,
+		content
+	};
+};
+
+const getFileSync = (file, cwd) => {
+	const filePath = path.join(cwd, file);
+	const content = fs.readFileSync(filePath, 'utf8');
+
+	return {
+		cwd,
+		filePath,
+		content
+	};
+};
+
+const normalizeOptions = ({
+	ignore = [],
+	cwd = slash(process.cwd())
+} = {}) => {
+	return {ignore, cwd};
+};
+
+module.exports = async options => {
+	options = normalizeOptions(options);
+
+	const paths = await fastGlob('**/.gitignore', {
+		ignore: DEFAULT_IGNORE.concat(options.ignore),
+		cwd: options.cwd
+	});
+
+	const files = await Promise.all(paths.map(file => getFile(file, options.cwd)));
+	const ignores = reduceIgnore(files);
+
+	return getIsIgnoredPredecate(ignores, options.cwd);
+};
+
+module.exports.sync = options => {
+	options = normalizeOptions(options);
+
+	const paths = fastGlob.sync('**/.gitignore', {
+		ignore: DEFAULT_IGNORE.concat(options.ignore),
+		cwd: options.cwd
+	});
+
+	const files = paths.map(file => getFileSync(file, options.cwd));
+	const ignores = reduceIgnore(files);
+
+	return getIsIgnoredPredecate(ignores, options.cwd);
+};
+
+
+/***/ }),
+
+/***/ 43398:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+const fs = __nccwpck_require__(35747);
+const arrayUnion = __nccwpck_require__(99600);
+const merge2 = __nccwpck_require__(82578);
+const fastGlob = __nccwpck_require__(43664);
+const dirGlob = __nccwpck_require__(12738);
+const gitignore = __nccwpck_require__(89038);
+const {FilterStream, UniqueStream} = __nccwpck_require__(32408);
+
+const DEFAULT_FILTER = () => false;
+
+const isNegative = pattern => pattern[0] === '!';
+
+const assertPatternsInput = patterns => {
+	if (!patterns.every(pattern => typeof pattern === 'string')) {
+		throw new TypeError('Patterns must be a string or an array of strings');
+	}
+};
+
+const checkCwdOption = (options = {}) => {
+	if (!options.cwd) {
+		return;
+	}
+
+	let stat;
+	try {
+		stat = fs.statSync(options.cwd);
+	} catch {
+		return;
+	}
+
+	if (!stat.isDirectory()) {
+		throw new Error('The `cwd` option must be a path to a directory');
+	}
+};
+
+const getPathString = p => p.stats instanceof fs.Stats ? p.path : p;
+
+const generateGlobTasks = (patterns, taskOptions) => {
+	patterns = arrayUnion([].concat(patterns));
+	assertPatternsInput(patterns);
+	checkCwdOption(taskOptions);
+
+	const globTasks = [];
+
+	taskOptions = {
+		ignore: [],
+		expandDirectories: true,
+		...taskOptions
+	};
+
+	for (const [index, pattern] of patterns.entries()) {
+		if (isNegative(pattern)) {
+			continue;
+		}
+
+		const ignore = patterns
+			.slice(index)
+			.filter(pattern => isNegative(pattern))
+			.map(pattern => pattern.slice(1));
+
+		const options = {
+			...taskOptions,
+			ignore: taskOptions.ignore.concat(ignore)
+		};
+
+		globTasks.push({pattern, options});
+	}
+
+	return globTasks;
+};
+
+const globDirs = (task, fn) => {
+	let options = {};
+	if (task.options.cwd) {
+		options.cwd = task.options.cwd;
+	}
+
+	if (Array.isArray(task.options.expandDirectories)) {
+		options = {
+			...options,
+			files: task.options.expandDirectories
+		};
+	} else if (typeof task.options.expandDirectories === 'object') {
+		options = {
+			...options,
+			...task.options.expandDirectories
+		};
+	}
+
+	return fn(task.pattern, options);
+};
+
+const getPattern = (task, fn) => task.options.expandDirectories ? globDirs(task, fn) : [task.pattern];
+
+const getFilterSync = options => {
+	return options && options.gitignore ?
+		gitignore.sync({cwd: options.cwd, ignore: options.ignore}) :
+		DEFAULT_FILTER;
+};
+
+const globToTask = task => glob => {
+	const {options} = task;
+	if (options.ignore && Array.isArray(options.ignore) && options.expandDirectories) {
+		options.ignore = dirGlob.sync(options.ignore);
+	}
+
+	return {
+		pattern: glob,
+		options
+	};
+};
+
+module.exports = async (patterns, options) => {
+	const globTasks = generateGlobTasks(patterns, options);
+
+	const getFilter = async () => {
+		return options && options.gitignore ?
+			gitignore({cwd: options.cwd, ignore: options.ignore}) :
+			DEFAULT_FILTER;
+	};
+
+	const getTasks = async () => {
+		const tasks = await Promise.all(globTasks.map(async task => {
+			const globs = await getPattern(task, dirGlob);
+			return Promise.all(globs.map(globToTask(task)));
+		}));
+
+		return arrayUnion(...tasks);
+	};
+
+	const [filter, tasks] = await Promise.all([getFilter(), getTasks()]);
+	const paths = await Promise.all(tasks.map(task => fastGlob(task.pattern, task.options)));
+
+	return arrayUnion(...paths).filter(path_ => !filter(getPathString(path_)));
+};
+
+module.exports.sync = (patterns, options) => {
+	const globTasks = generateGlobTasks(patterns, options);
+
+	const tasks = [];
+	for (const task of globTasks) {
+		const newTask = getPattern(task, dirGlob.sync).map(globToTask(task));
+		tasks.push(...newTask);
+	}
+
+	const filter = getFilterSync(options);
+
+	let matches = [];
+	for (const task of tasks) {
+		matches = arrayUnion(matches, fastGlob.sync(task.pattern, task.options));
+	}
+
+	return matches.filter(path_ => !filter(path_));
+};
+
+module.exports.stream = (patterns, options) => {
+	const globTasks = generateGlobTasks(patterns, options);
+
+	const tasks = [];
+	for (const task of globTasks) {
+		const newTask = getPattern(task, dirGlob.sync).map(globToTask(task));
+		tasks.push(...newTask);
+	}
+
+	const filter = getFilterSync(options);
+	const filterStream = new FilterStream(p => !filter(p));
+	const uniqueStream = new UniqueStream();
+
+	return merge2(tasks.map(task => fastGlob.stream(task.pattern, task.options)))
+		.pipe(filterStream)
+		.pipe(uniqueStream);
+};
+
+module.exports.generateGlobTasks = generateGlobTasks;
+
+module.exports.hasMagic = (patterns, options) => []
+	.concat(patterns)
+	.some(pattern => fastGlob.isDynamicPattern(pattern, options));
+
+module.exports.gitignore = gitignore;
+
+
+/***/ }),
+
+/***/ 12069:
+/***/ ((module) => {
+
+// A simple implementation of make-array
+function makeArray (subject) {
+  return Array.isArray(subject)
+    ? subject
+    : [subject]
+}
+
+const EMPTY = ''
+const SPACE = ' '
+const ESCAPE = '\\'
+const REGEX_TEST_BLANK_LINE = /^\s+$/
+const REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION = /^\\!/
+const REGEX_REPLACE_LEADING_EXCAPED_HASH = /^\\#/
+const REGEX_SPLITALL_CRLF = /\r?\n/g
+// /foo,
+// ./foo,
+// ../foo,
+// .
+// ..
+const REGEX_TEST_INVALID_PATH = /^\.*\/|^\.+$/
+
+const SLASH = '/'
+const KEY_IGNORE = typeof Symbol !== 'undefined'
+  ? Symbol.for('node-ignore')
+  /* istanbul ignore next */
+  : 'node-ignore'
+
+const define = (object, key, value) =>
+  Object.defineProperty(object, key, {value})
+
+const REGEX_REGEXP_RANGE = /([0-z])-([0-z])/g
+
+// Sanitize the range of a regular expression
+// The cases are complicated, see test cases for details
+const sanitizeRange = range => range.replace(
+  REGEX_REGEXP_RANGE,
+  (match, from, to) => from.charCodeAt(0) <= to.charCodeAt(0)
+    ? match
+    // Invalid range (out of order) which is ok for gitignore rules but
+    //   fatal for JavaScript regular expression, so eliminate it.
+    : EMPTY
+)
+
+// See fixtures #59
+const cleanRangeBackSlash = slashes => {
+  const {length} = slashes
+  return slashes.slice(0, length - length % 2)
+}
+
+// > If the pattern ends with a slash,
+// > it is removed for the purpose of the following description,
+// > but it would only find a match with a directory.
+// > In other words, foo/ will match a directory foo and paths underneath it,
+// > but will not match a regular file or a symbolic link foo
+// >  (this is consistent with the way how pathspec works in general in Git).
+// '`foo/`' will not match regular file '`foo`' or symbolic link '`foo`'
+// -> ignore-rules will not deal with it, because it costs extra `fs.stat` call
+//      you could use option `mark: true` with `glob`
+
+// '`foo/`' should not continue with the '`..`'
+const REPLACERS = [
+
+  // > Trailing spaces are ignored unless they are quoted with backslash ("\")
+  [
+    // (a\ ) -> (a )
+    // (a  ) -> (a)
+    // (a \ ) -> (a  )
+    /\\?\s+$/,
+    match => match.indexOf('\\') === 0
+      ? SPACE
+      : EMPTY
+  ],
+
+  // replace (\ ) with ' '
+  [
+    /\\\s/g,
+    () => SPACE
+  ],
+
+  // Escape metacharacters
+  // which is written down by users but means special for regular expressions.
+
+  // > There are 12 characters with special meanings:
+  // > - the backslash \,
+  // > - the caret ^,
+  // > - the dollar sign $,
+  // > - the period or dot .,
+  // > - the vertical bar or pipe symbol |,
+  // > - the question mark ?,
+  // > - the asterisk or star *,
+  // > - the plus sign +,
+  // > - the opening parenthesis (,
+  // > - the closing parenthesis ),
+  // > - and the opening square bracket [,
+  // > - the opening curly brace {,
+  // > These special characters are often called "metacharacters".
+  [
+    /[\\$.|*+(){^]/g,
+    match => `\\${match}`
+  ],
+
+  [
+    // > a question mark (?) matches a single character
+    /(?!\\)\?/g,
+    () => '[^/]'
+  ],
+
+  // leading slash
+  [
+
+    // > A leading slash matches the beginning of the pathname.
+    // > For example, "/*.c" matches "cat-file.c" but not "mozilla-sha1/sha1.c".
+    // A leading slash matches the beginning of the pathname
+    /^\//,
+    () => '^'
+  ],
+
+  // replace special metacharacter slash after the leading slash
+  [
+    /\//g,
+    () => '\\/'
+  ],
+
+  [
+    // > A leading "**" followed by a slash means match in all directories.
+    // > For example, "**/foo" matches file or directory "foo" anywhere,
+    // > the same as pattern "foo".
+    // > "**/foo/bar" matches file or directory "bar" anywhere that is directly
+    // >   under directory "foo".
+    // Notice that the '*'s have been replaced as '\\*'
+    /^\^*\\\*\\\*\\\//,
+
+    // '**/foo' <-> 'foo'
+    () => '^(?:.*\\/)?'
+  ],
+
+  // starting
+  [
+    // there will be no leading '/'
+    //   (which has been replaced by section "leading slash")
+    // If starts with '**', adding a '^' to the regular expression also works
+    /^(?=[^^])/,
+    function startingReplacer () {
+      // If has a slash `/` at the beginning or middle
+      return !/\/(?!$)/.test(this)
+        // > Prior to 2.22.1
+        // > If the pattern does not contain a slash /,
+        // >   Git treats it as a shell glob pattern
+        // Actually, if there is only a trailing slash,
+        //   git also treats it as a shell glob pattern
+
+        // After 2.22.1 (compatible but clearer)
+        // > If there is a separator at the beginning or middle (or both)
+        // > of the pattern, then the pattern is relative to the directory
+        // > level of the particular .gitignore file itself.
+        // > Otherwise the pattern may also match at any level below
+        // > the .gitignore level.
+        ? '(?:^|\\/)'
+
+        // > Otherwise, Git treats the pattern as a shell glob suitable for
+        // >   consumption by fnmatch(3)
+        : '^'
+    }
+  ],
+
+  // two globstars
+  [
+    // Use lookahead assertions so that we could match more than one `'/**'`
+    /\\\/\\\*\\\*(?=\\\/|$)/g,
+
+    // Zero, one or several directories
+    // should not use '*', or it will be replaced by the next replacer
+
+    // Check if it is not the last `'/**'`
+    (_, index, str) => index + 6 < str.length
+
+      // case: /**/
+      // > A slash followed by two consecutive asterisks then a slash matches
+      // >   zero or more directories.
+      // > For example, "a/**/b" matches "a/b", "a/x/b", "a/x/y/b" and so on.
+      // '/**/'
+      ? '(?:\\/[^\\/]+)*'
+
+      // case: /**
+      // > A trailing `"/**"` matches everything inside.
+
+      // #21: everything inside but it should not include the current folder
+      : '\\/.+'
+  ],
+
+  // intermediate wildcards
+  [
+    // Never replace escaped '*'
+    // ignore rule '\*' will match the path '*'
+
+    // 'abc.*/' -> go
+    // 'abc.*'  -> skip this rule
+    /(^|[^\\]+)\\\*(?=.+)/g,
+
+    // '*.js' matches '.js'
+    // '*.js' doesn't match 'abc'
+    (_, p1) => `${p1}[^\\/]*`
+  ],
+
+  [
+    // unescape, revert step 3 except for back slash
+    // For example, if a user escape a '\\*',
+    // after step 3, the result will be '\\\\\\*'
+    /\\\\\\(?=[$.|*+(){^])/g,
+    () => ESCAPE
+  ],
+
+  [
+    // '\\\\' -> '\\'
+    /\\\\/g,
+    () => ESCAPE
+  ],
+
+  [
+    // > The range notation, e.g. [a-zA-Z],
+    // > can be used to match one of the characters in a range.
+
+    // `\` is escaped by step 3
+    /(\\)?\[([^\]/]*?)(\\*)($|\])/g,
+    (match, leadEscape, range, endEscape, close) => leadEscape === ESCAPE
+      // '\\[bar]' -> '\\\\[bar\\]'
+      ? `\\[${range}${cleanRangeBackSlash(endEscape)}${close}`
+      : close === ']'
+        ? endEscape.length % 2 === 0
+          // A normal case, and it is a range notation
+          // '[bar]'
+          // '[bar\\\\]'
+          ? `[${sanitizeRange(range)}${endEscape}]`
+          // Invalid range notaton
+          // '[bar\\]' -> '[bar\\\\]'
+          : '[]'
+        : '[]'
+  ],
+
+  // ending
+  [
+    // 'js' will not match 'js.'
+    // 'ab' will not match 'abc'
+    /(?:[^*])$/,
+
+    // WTF!
+    // https://git-scm.com/docs/gitignore
+    // changes in [2.22.1](https://git-scm.com/docs/gitignore/2.22.1)
+    // which re-fixes #24, #38
+
+    // > If there is a separator at the end of the pattern then the pattern
+    // > will only match directories, otherwise the pattern can match both
+    // > files and directories.
+
+    // 'js*' will not match 'a.js'
+    // 'js/' will not match 'a.js'
+    // 'js' will match 'a.js' and 'a.js/'
+    match => /\/$/.test(match)
+      // foo/ will not match 'foo'
+      ? `${match}$`
+      // foo matches 'foo' and 'foo/'
+      : `${match}(?=$|\\/$)`
+  ],
+
+  // trailing wildcard
+  [
+    /(\^|\\\/)?\\\*$/,
+    (_, p1) => {
+      const prefix = p1
+        // '\^':
+        // '/*' does not match EMPTY
+        // '/*' does not match everything
+
+        // '\\\/':
+        // 'abc/*' does not match 'abc/'
+        ? `${p1}[^/]+`
+
+        // 'a*' matches 'a'
+        // 'a*' matches 'aa'
+        : '[^/]*'
+
+      return `${prefix}(?=$|\\/$)`
+    }
+  ],
+]
+
+// A simple cache, because an ignore rule only has only one certain meaning
+const regexCache = Object.create(null)
+
+// @param {pattern}
+const makeRegex = (pattern, negative, ignorecase) => {
+  const r = regexCache[pattern]
+  if (r) {
+    return r
+  }
+
+  // const replacers = negative
+  //   ? NEGATIVE_REPLACERS
+  //   : POSITIVE_REPLACERS
+
+  const source = REPLACERS.reduce(
+    (prev, current) => prev.replace(current[0], current[1].bind(pattern)),
+    pattern
+  )
+
+  return regexCache[pattern] = ignorecase
+    ? new RegExp(source, 'i')
+    : new RegExp(source)
+}
+
+const isString = subject => typeof subject === 'string'
+
+// > A blank line matches no files, so it can serve as a separator for readability.
+const checkPattern = pattern => pattern
+  && isString(pattern)
+  && !REGEX_TEST_BLANK_LINE.test(pattern)
+
+  // > A line starting with # serves as a comment.
+  && pattern.indexOf('#') !== 0
+
+const splitPattern = pattern => pattern.split(REGEX_SPLITALL_CRLF)
+
+class IgnoreRule {
+  constructor (
+    origin,
+    pattern,
+    negative,
+    regex
+  ) {
+    this.origin = origin
+    this.pattern = pattern
+    this.negative = negative
+    this.regex = regex
+  }
+}
+
+const createRule = (pattern, ignorecase) => {
+  const origin = pattern
+  let negative = false
+
+  // > An optional prefix "!" which negates the pattern;
+  if (pattern.indexOf('!') === 0) {
+    negative = true
+    pattern = pattern.substr(1)
+  }
+
+  pattern = pattern
+  // > Put a backslash ("\") in front of the first "!" for patterns that
+  // >   begin with a literal "!", for example, `"\!important!.txt"`.
+  .replace(REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION, '!')
+  // > Put a backslash ("\") in front of the first hash for patterns that
+  // >   begin with a hash.
+  .replace(REGEX_REPLACE_LEADING_EXCAPED_HASH, '#')
+
+  const regex = makeRegex(pattern, negative, ignorecase)
+
+  return new IgnoreRule(
+    origin,
+    pattern,
+    negative,
+    regex
+  )
+}
+
+const throwError = (message, Ctor) => {
+  throw new Ctor(message)
+}
+
+const checkPath = (path, originalPath, doThrow) => {
+  if (!isString(path)) {
+    return doThrow(
+      `path must be a string, but got \`${originalPath}\``,
+      TypeError
+    )
+  }
+
+  // We don't know if we should ignore EMPTY, so throw
+  if (!path) {
+    return doThrow(`path must not be empty`, TypeError)
+  }
+
+  // Check if it is a relative path
+  if (checkPath.isNotRelative(path)) {
+    const r = '`path.relative()`d'
+    return doThrow(
+      `path should be a ${r} string, but got "${originalPath}"`,
+      RangeError
+    )
+  }
+
+  return true
+}
+
+const isNotRelative = path => REGEX_TEST_INVALID_PATH.test(path)
+
+checkPath.isNotRelative = isNotRelative
+checkPath.convert = p => p
+
+class Ignore {
+  constructor ({
+    ignorecase = true
+  } = {}) {
+    this._rules = []
+    this._ignorecase = ignorecase
+    define(this, KEY_IGNORE, true)
+    this._initCache()
+  }
+
+  _initCache () {
+    this._ignoreCache = Object.create(null)
+    this._testCache = Object.create(null)
+  }
+
+  _addPattern (pattern) {
+    // #32
+    if (pattern && pattern[KEY_IGNORE]) {
+      this._rules = this._rules.concat(pattern._rules)
+      this._added = true
+      return
+    }
+
+    if (checkPattern(pattern)) {
+      const rule = createRule(pattern, this._ignorecase)
+      this._added = true
+      this._rules.push(rule)
+    }
+  }
+
+  // @param {Array<string> | string | Ignore} pattern
+  add (pattern) {
+    this._added = false
+
+    makeArray(
+      isString(pattern)
+        ? splitPattern(pattern)
+        : pattern
+    ).forEach(this._addPattern, this)
+
+    // Some rules have just added to the ignore,
+    // making the behavior changed.
+    if (this._added) {
+      this._initCache()
+    }
+
+    return this
+  }
+
+  // legacy
+  addPattern (pattern) {
+    return this.add(pattern)
+  }
+
+  //          |           ignored : unignored
+  // negative |   0:0   |   0:1   |   1:0   |   1:1
+  // -------- | ------- | ------- | ------- | --------
+  //     0    |  TEST   |  TEST   |  SKIP   |    X
+  //     1    |  TESTIF |  SKIP   |  TEST   |    X
+
+  // - SKIP: always skip
+  // - TEST: always test
+  // - TESTIF: only test if checkUnignored
+  // - X: that never happen
+
+  // @param {boolean} whether should check if the path is unignored,
+  //   setting `checkUnignored` to `false` could reduce additional
+  //   path matching.
+
+  // @returns {TestResult} true if a file is ignored
+  _testOne (path, checkUnignored) {
+    let ignored = false
+    let unignored = false
+
+    this._rules.forEach(rule => {
+      const {negative} = rule
+      if (
+        unignored === negative && ignored !== unignored
+        || negative && !ignored && !unignored && !checkUnignored
+      ) {
+        return
+      }
+
+      const matched = rule.regex.test(path)
+
+      if (matched) {
+        ignored = !negative
+        unignored = negative
+      }
+    })
+
+    return {
+      ignored,
+      unignored
+    }
+  }
+
+  // @returns {TestResult}
+  _test (originalPath, cache, checkUnignored, slices) {
+    const path = originalPath
+      // Supports nullable path
+      && checkPath.convert(originalPath)
+
+    checkPath(path, originalPath, throwError)
+
+    return this._t(path, cache, checkUnignored, slices)
+  }
+
+  _t (path, cache, checkUnignored, slices) {
+    if (path in cache) {
+      return cache[path]
+    }
+
+    if (!slices) {
+      // path/to/a.js
+      // ['path', 'to', 'a.js']
+      slices = path.split(SLASH)
+    }
+
+    slices.pop()
+
+    // If the path has no parent directory, just test it
+    if (!slices.length) {
+      return cache[path] = this._testOne(path, checkUnignored)
+    }
+
+    const parent = this._t(
+      slices.join(SLASH) + SLASH,
+      cache,
+      checkUnignored,
+      slices
+    )
+
+    // If the path contains a parent directory, check the parent first
+    return cache[path] = parent.ignored
+      // > It is not possible to re-include a file if a parent directory of
+      // >   that file is excluded.
+      ? parent
+      : this._testOne(path, checkUnignored)
+  }
+
+  ignores (path) {
+    return this._test(path, this._ignoreCache, false).ignored
+  }
+
+  createFilter () {
+    return path => !this.ignores(path)
+  }
+
+  filter (paths) {
+    return makeArray(paths).filter(this.createFilter())
+  }
+
+  // @returns {TestResult}
+  test (path) {
+    return this._test(path, this._testCache, true)
+  }
+}
+
+const factory = options => new Ignore(options)
+
+const returnFalse = () => false
+
+const isPathValid = path =>
+  checkPath(path && checkPath.convert(path), path, returnFalse)
+
+factory.isPathValid = isPathValid
+
+// Fixes typescript
+factory.default = factory
+
+module.exports = factory
+
+// Windows
+// --------------------------------------------------------------
+/* istanbul ignore if  */
+if (
+  // Detect `process` so that it can run in browsers.
+  typeof process !== 'undefined'
+  && (
+    process.env && process.env.IGNORE_TEST_WIN32
+    || process.platform === 'win32'
+  )
+) {
+  /* eslint no-control-regex: "off" */
+  const makePosix = str => /^\\\\\?\\/.test(str)
+  || /["<>|\u0000-\u001F]+/u.test(str)
+    ? str
+    : str.replace(/\\/g, '/')
+
+  checkPath.convert = makePosix
+
+  // 'C:\\foo'     <- 'C:\\foo' has been converted to 'C:/'
+  // 'd:\\foo'
+  const REGIX_IS_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i
+  checkPath.isNotRelative = path =>
+    REGIX_IS_WINDOWS_PATH_ABSOLUTE.test(path)
+    || isNotRelative(path)
+}
+
+
+/***/ }),
+
+/***/ 32408:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+"use strict";
+
+const {Transform} = __nccwpck_require__(92413);
+
+class ObjectTransform extends Transform {
+	constructor() {
+		super({
+			objectMode: true
+		});
+	}
+}
+
+class FilterStream extends ObjectTransform {
+	constructor(filter) {
+		super();
+		this._filter = filter;
+	}
+
+	_transform(data, encoding, callback) {
+		if (this._filter(data)) {
+			this.push(data);
+		}
+
+		callback();
+	}
+}
+
+class UniqueStream extends ObjectTransform {
+	constructor() {
+		super();
+		this._pushed = new Set();
+	}
+
+	_transform(data, encoding, callback) {
+		if (!this._pushed.has(data)) {
+			this.push(data);
+			this._pushed.add(data);
+		}
+
+		callback();
+	}
+}
+
+module.exports = {
+	FilterStream,
+	UniqueStream
 };
 
 
@@ -77605,22 +75322,30 @@ module.exports = (versions, range, options) => {
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const Range = __nccwpck_require__(30845)
-const { ANY } = __nccwpck_require__(53704)
+const Comparator = __nccwpck_require__(53704)
+const { ANY } = Comparator
 const satisfies = __nccwpck_require__(39457)
 const compare = __nccwpck_require__(4441)
 
 // Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
-// - Every simple range `r1, r2, ...` is a subset of some `R1, R2, ...`
+// - Every simple range `r1, r2, ...` is a null set, OR
+// - Every simple range `r1, r2, ...` which is not a null set is a subset of
+//   some `R1, R2, ...`
 //
 // Simple range `c1 c2 ...` is a subset of simple range `C1 C2 ...` iff:
 // - If c is only the ANY comparator
 //   - If C is only the ANY comparator, return true
-//   - Else return false
+//   - Else if in prerelease mode, return false
+//   - else replace c with `[>=0.0.0]`
+// - If C is only the ANY comparator
+//   - if in prerelease mode, return true
+//   - else replace C with `[>=0.0.0]`
 // - Let EQ be the set of = comparators in c
 // - If EQ is more than one, return true (null set)
 // - Let GT be the highest > or >= comparator in c
 // - Let LT be the lowest < or <= comparator in c
 // - If GT and LT, and GT.semver > LT.semver, return true (null set)
+// - If any C is a = range, and GT or LT are set, return false
 // - If EQ
 //   - If GT, and EQ does not satisfy GT, return true (null set)
 //   - If LT, and EQ does not satisfy LT, return true (null set)
@@ -77629,13 +75354,16 @@ const compare = __nccwpck_require__(4441)
 // - If GT
 //   - If GT.semver is lower than any > or >= comp in C, return false
 //   - If GT is >=, and GT.semver does not satisfy every C, return false
+//   - If GT.semver has a prerelease, and not in prerelease mode
+//     - If no C has a prerelease and the GT.semver tuple, return false
 // - If LT
 //   - If LT.semver is greater than any < or <= comp in C, return false
 //   - If LT is <=, and LT.semver does not satisfy every C, return false
-// - If any C is a = range, and GT or LT are set, return false
+//   - If GT.semver has a prerelease, and not in prerelease mode
+//     - If no C has a prerelease and the LT.semver tuple, return false
 // - Else return true
 
-const subset = (sub, dom, options) => {
+const subset = (sub, dom, options = {}) => {
   if (sub === dom)
     return true
 
@@ -77664,8 +75392,21 @@ const simpleSubset = (sub, dom, options) => {
   if (sub === dom)
     return true
 
-  if (sub.length === 1 && sub[0].semver === ANY)
-    return dom.length === 1 && dom[0].semver === ANY
+  if (sub.length === 1 && sub[0].semver === ANY) {
+    if (dom.length === 1 && dom[0].semver === ANY)
+      return true
+    else if (options.includePrerelease)
+      sub = [ new Comparator('>=0.0.0-0') ]
+    else
+      sub = [ new Comparator('>=0.0.0') ]
+  }
+
+  if (dom.length === 1 && dom[0].semver === ANY) {
+    if (options.includePrerelease)
+      return true
+    else
+      dom = [ new Comparator('>=0.0.0') ]
+  }
 
   const eqSet = new Set()
   let gt, lt
@@ -77708,10 +75449,32 @@ const simpleSubset = (sub, dom, options) => {
 
   let higher, lower
   let hasDomLT, hasDomGT
+  // if the subset has a prerelease, we need a comparator in the superset
+  // with the same tuple and a prerelease, or it's not a subset
+  let needDomLTPre = lt &&
+    !options.includePrerelease &&
+    lt.semver.prerelease.length ? lt.semver : false
+  let needDomGTPre = gt &&
+    !options.includePrerelease &&
+    gt.semver.prerelease.length ? gt.semver : false
+  // exception: <1.2.3-0 is the same as <1.2.3
+  if (needDomLTPre && needDomLTPre.prerelease.length === 1 &&
+      lt.operator === '<' && needDomLTPre.prerelease[0] === 0) {
+    needDomLTPre = false
+  }
+
   for (const c of dom) {
     hasDomGT = hasDomGT || c.operator === '>' || c.operator === '>='
     hasDomLT = hasDomLT || c.operator === '<' || c.operator === '<='
     if (gt) {
+      if (needDomGTPre) {
+        if (c.semver.prerelease && c.semver.prerelease.length &&
+            c.semver.major === needDomGTPre.major &&
+            c.semver.minor === needDomGTPre.minor &&
+            c.semver.patch === needDomGTPre.patch) {
+          needDomGTPre = false
+        }
+      }
       if (c.operator === '>' || c.operator === '>=') {
         higher = higherGT(gt, c, options)
         if (higher === c && higher !== gt)
@@ -77720,6 +75483,14 @@ const simpleSubset = (sub, dom, options) => {
         return false
     }
     if (lt) {
+      if (needDomLTPre) {
+        if (c.semver.prerelease && c.semver.prerelease.length &&
+            c.semver.major === needDomLTPre.major &&
+            c.semver.minor === needDomLTPre.minor &&
+            c.semver.patch === needDomLTPre.patch) {
+          needDomLTPre = false
+        }
+      }
       if (c.operator === '<' || c.operator === '<=') {
         lower = lowerLT(lt, c, options)
         if (lower === c && lower !== lt)
@@ -77738,6 +75509,12 @@ const simpleSubset = (sub, dom, options) => {
     return false
 
   if (lt && hasDomGT && !gt && gtltComp !== 0)
+    return false
+
+  // we needed a prerelease range in a specific tuple, but didn't get one
+  // then this isn't a subset.  eg >=1.2.3-pre is not a subset of >=1.0.0,
+  // because it includes prereleases in the 1.2.3 tuple
+  if (needDomGTPre || needDomLTPre)
     return false
 
   return true
@@ -101676,7 +99453,7 @@ module.exports = Yaml;
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.20.2","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/cache":"^1.0.7","@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@aws-sdk/client-s3":"^3.14.0","@aws-sdk/types":"^3.13.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@octokit/webhooks-types":"^3.73.1","@types/lodash":"^4.14.169","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","lodash":"^4.17.21","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.23.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-import-resolver-typescript":"^2.4.0","eslint-plugin-import":"^2.22.1","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^11.0.0","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"setupFilesAfterEnv":["./jest/global-test-hooks.ts"],"testTimeout":90000}}');
+module.exports = JSON.parse('{"name":"@wealthsimple/actions-toolbox","version":"1.20.4","description":"Wealthsimple\'s CI tools, for use in GitHub Actions.","main":"src/index.js","license":"UNLICENSED","types":"src/index.d.ts","directories":{"data":"data","src":"src"},"files":["data","src"],"repository":"https://github.com/wealthsimple/actions-toolbox","author":"Wealthsimple","publishConfig":{"registry":"https://nexus.iad.w10external.com/repository/npm-private"},"scripts":{"format":"prettier . --write","lint":"eslint .","test":"jest","build":"tsc --declaration","all":"yarn run format && yarn run lint && yarn run test"},"dependencies":{"@actions/cache":"^1.0.7","@actions/core":"^1.2.6","@actions/exec":"^1.0.4","@actions/http-client":"^1.0.9","@actions/io":"^1.0.2","@actions/tool-cache":"^1.6.1","@aws-sdk/client-s3":"^3.14.0","@aws-sdk/types":"^3.13.1","@commitlint/lint":"^12.1.1","@commitlint/load":"^12.1.1","@octokit/webhooks-types":"^3.73.1","@types/lodash":"^4.14.169","@types/semantic-release":"^17.2.0","@wealthsimple/git-commitlint-hook":"^1.0.1","@wealthsimple/transinator":"^3.1.8","globby":"^11.0.3","lodash":"^4.17.21","semantic-release":"^17.4.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@tsconfig/node12":"^1.0.7","@types/jest":"^26.0.21","@types/node":"^12.12.6","@typescript-eslint/eslint-plugin":"^4.18.0","@typescript-eslint/parser":"^4.23.0","eslint":"^7.22.0","eslint-config-prettier":"^8.1.0","eslint-import-resolver-typescript":"^2.4.0","eslint-plugin-import":"^2.22.1","eslint-plugin-prettier":"^3.3.1","jest":"^26.6.3","lint-staged":"^11.0.0","prettier":"^2.2.1","ts-jest":"^26.5.4","typescript":"^4.2.3"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"husky":{"hooks":{"commit-msg":"git-commitlint-hook","pre-commit":"yarn lint-staged"}},"lint-staged":{"*.{js,ts}":["eslint --fix"],"*.{js,json,md,ts,yml,yaml}":["prettier --write"]},"jest":{"preset":"ts-jest","testEnvironment":"node","testPathIgnorePatterns":["/test.ts$","/fixtures/"],"setupFilesAfterEnv":["./jest/global-test-hooks.ts"],"testTimeout":90000}}');
 
 /***/ }),
 
@@ -101772,7 +99549,7 @@ module.exports = {"i8":"3.3.3"};
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"name":"toolbox-script","version":"1.49.0","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.20.2"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.23","@types/node":"^15.0.1","@typescript-eslint/eslint-plugin":"^4.22.0","@typescript-eslint/parser":"^4.22.0","@vercel/ncc":"^0.28.4","eslint":"^7.25.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.6","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.2.1","semantic-release":"^17.4.2","ts-jest":"^26.5.5","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
+module.exports = JSON.parse('{"name":"toolbox-script","version":"1.50.2","private":true,"description":"Wealthsimple Toolbox Script Action","main":"lib/main.js","scripts":{"all":"yarn run build && yarn run format && yarn run lint && yarn test","build":"ncc build src/main.ts","format":"prettier --write **/*.ts","format-check":"prettier --check **/*.ts","lint":"eslint src/**/*.ts","test":"jest"},"repository":{"type":"git","url":"git+https://github.com/wealthsimple/toolbox-script.git"},"keywords":["actions","node"],"author":"Wealthsimple","license":"UNLICENSED","dependencies":{"@actions/core":"^1.2.7","@actions/io":"^1.1.0","@wealthsimple/actions-toolbox":"1.20.4"},"devDependencies":{"@semantic-release/git":"^9.0.0","@types/jest":"^26.0.23","@types/node":"^15.0.2","@typescript-eslint/eslint-plugin":"^4.23.0","@typescript-eslint/parser":"^4.23.0","@vercel/ncc":"^0.28.5","eslint":"^7.26.0","eslint-config-prettier":"^8.3.0","eslint-plugin-jest":"^24.3.6","eslint-plugin-prettier":"^3.4.0","jest":"^26.6.3","js-yaml":"^4.1.0","prettier":"^2.3.0","semantic-release":"^17.4.2","ts-jest":"^26.5.6","typescript":"^4.2.4"},"release":{"plugins":["@semantic-release/commit-analyzer","@semantic-release/release-notes-generator","@semantic-release/npm","@semantic-release/git","@semantic-release/github"]},"jest":{"preset":"ts-jest","testEnvironment":"node"}}');
 
 /***/ }),
 
