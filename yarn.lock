@@ -1847,6 +1847,18 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/error/-/error-2.2.0.tgz#ee9d5a09c9969eade1ec864776aeda5c5cddbbf0"
   integrity sha512-9Tj/qn+y2j+sjCI3Jd+qseGtHjOAeg7dU2/lVcqIQ9TV3QDaDXDYXcoOHU+7o2Hwh8L8ymL4gfuO7KxDs3q2zg==
 
+"@semantic-release/exec@^5.0.0":
+  version "5.0.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/exec/-/exec-5.0.0.tgz#69c253107a755dabf7c262d417269d099f714356"
+  integrity sha512-t7LWXIvDJQbuGCy2WmMG51WyaGSLTvZBv9INvcI4S0kn+QjnnVVUMhcioIqhb0r3yqqarMzHVcABFug0q0OXjw==
+  dependencies:
+    "@semantic-release/error" "^2.1.0"
+    aggregate-error "^3.0.0"
+    debug "^4.0.0"
+    execa "^4.0.0"
+    lodash "^4.17.4"
+    parse-json "^5.0.0"
+
 "@semantic-release/git@^9.0.0":
   version "9.0.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/git/-/git-9.0.0.tgz#304c4883c87d095b1faaae93300f1f1e0466e9a5"
@@ -2158,10 +2170,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
   integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
-"@wealthsimple/actions-toolbox@1.20.6":
-  version "1.20.6"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.20.6.tgz#2c9720d02d3aca13d23a5bc9a1bc11da09330243"
-  integrity sha512-D0iJ9Q+VCvuHw7JltCFuzbp+zjVSBWuAl3dP0zrzYLG0BU4fcIDMLCRxVkifpQtGsZ7rt53PScZwETXsKRqvdA==
+"@wealthsimple/actions-toolbox@1.22.0-branch-publishing.1":
+  version "1.22.0-branch-publishing.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.22.0-branch-publishing.1.tgz#de1fb0f69653bea02c2c1a918b7e2c3bf1079d3f"
+  integrity sha512-BL5OuNVQYBZETsxx+VWQjZWaPSPvGmTg1Q45OkGH57peBy3LWI3u6WEUOs4koNu9sM+CUp/uITm1I5tzynoeeA==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
@@ -2174,10 +2186,11 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@octokit/webhooks-types" "^3.73.1"
+    "@semantic-release/exec" "^5.0.0"
     "@types/lodash" "^4.14.169"
     "@types/semantic-release" "^17.2.0"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
-    "@wealthsimple/transinator" "^3.1.8"
+    "@wealthsimple/transinator" "^3.1.9"
     globby "^11.0.3"
     lodash "^4.17.21"
     semantic-release "^17.4.2"
@@ -2193,10 +2206,10 @@
     cz-conventional-changelog "^3.1.0"
     husky "^4.2.1"
 
-"@wealthsimple/transinator@^3.1.8":
-  version "3.1.8"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.8.tgz#940374b5d6dee6391c5416fab6ed5361d3527533"
-  integrity sha512-JcmLfxGqXWLi2QhFBBhkJ1BMwISuO6ZUOl4d+gKqSRKhPcwa1WE0FHntx1OcXQKib7R44+7GKkvSpHRvVR3y8g==
+"@wealthsimple/transinator@^3.1.9":
+  version "3.1.9"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/transinator/-/transinator-3.1.9.tgz#0d43684bc0d4b0eff66de8bfd6495737ddedf92e"
+  integrity sha512-4N3vqoh/J6U5Ckt62Jyf3WL+IzMddOVdBOO8zQpzNnPkaSWb659kgwv9PVAHZUDKRcmE5FvpgYBEjrSKYxk/iQ==
   dependencies:
     commander "^6.2.1"
     flat "^5.0.2"
