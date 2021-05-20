@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.56.0-fix-version-numbers.1",
+  "version": "1.56.0-fix-version-numbers.2",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
