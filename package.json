@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.57.0-cache-dependencies.3",
+  "version": "1.57.0-cache-dependencies.4",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
