@@ -1847,6 +1847,18 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/error/-/error-2.2.0.tgz#ee9d5a09c9969eade1ec864776aeda5c5cddbbf0"
   integrity sha512-9Tj/qn+y2j+sjCI3Jd+qseGtHjOAeg7dU2/lVcqIQ9TV3QDaDXDYXcoOHU+7o2Hwh8L8ymL4gfuO7KxDs3q2zg==
 
+"@semantic-release/exec@^5.0.0":
+  version "5.0.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/exec/-/exec-5.0.0.tgz#69c253107a755dabf7c262d417269d099f714356"
+  integrity sha512-t7LWXIvDJQbuGCy2WmMG51WyaGSLTvZBv9INvcI4S0kn+QjnnVVUMhcioIqhb0r3yqqarMzHVcABFug0q0OXjw==
+  dependencies:
+    "@semantic-release/error" "^2.1.0"
+    aggregate-error "^3.0.0"
+    debug "^4.0.0"
+    execa "^4.0.0"
+    lodash "^4.17.4"
+    parse-json "^5.0.0"
+
 "@semantic-release/git@^9.0.0":
   version "9.0.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/@semantic-release/git/-/git-9.0.0.tgz#304c4883c87d095b1faaae93300f1f1e0466e9a5"
@@ -2163,10 +2175,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
   integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
-"@wealthsimple/actions-toolbox@1.21.1":
-  version "1.21.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.21.1.tgz#b0a1cbd0109558a1f5fd7473a350b2dae50154d2"
-  integrity sha512-OqM/Mkt4axBCmlKImgiYCFFlFJKUi+dKJacYmA2WRiC1pmEIYcpRWyRIDybiKdbkp0X2zQzDiS3OmMiRQF9sOQ==
+"@wealthsimple/actions-toolbox@1.21.2":
+  version "1.21.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.21.2.tgz#00605e9db7d8af3266e1f1e997cd5aeeab4caffe"
+  integrity sha512-6CU18W/BVY+dKbLuFcIWZxgHTD5iG508foejFVNKc0cpD3OrSM9VnXgyBugSigvAXJ1nM+GkhePncZ7wZyqykw==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
@@ -2179,6 +2191,7 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@octokit/webhooks-types" "^3.73.1"
+    "@semantic-release/exec" "^5.0.0"
     "@types/lodash" "^4.14.169"
     "@types/semantic-release" "^17.2.0"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
