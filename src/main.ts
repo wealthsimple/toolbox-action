@@ -2,15 +2,9 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as toolbox from '@wealthsimple/actions-toolbox';
 import { callAsyncFunction } from './async-function';
-import { version as toolboxScriptVersion } from '../package.json';
-
-process.on('unhandledRejection', handleError);
-main().catch(handleError);
+import { run } from './run';
 
 async function main(): Promise<void> {
-  core.info(`toolbox-script v${toolboxScriptVersion}`);
-  toolbox.version();
-
   const script = core.getInput('script', { required: true });
   const result = await callAsyncFunction(
     { require: require, core, io, toolbox },
@@ -21,8 +15,4 @@ async function main(): Promise<void> {
   core.setOutput('result', output);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function handleError(err: any): void {
-  console.error(err);
-  core.setFailed(`Unhandled error: ${err}`);
-}
+run(main);
