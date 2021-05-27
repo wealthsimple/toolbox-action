@@ -27,7 +27,7 @@
   "dependencies": {
     "@actions/core": "^1.3.0",
     "@actions/io": "^1.1.0",
-    "@wealthsimple/actions-toolbox": "1.22.0"
+    "@wealthsimple/actions-toolbox": "1.23.0-cache-sonar.2"
   },
   "devDependencies": {
     "@semantic-release/git": "^9.0.0",
