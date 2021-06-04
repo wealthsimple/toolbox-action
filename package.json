@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.62.0-ws-schemas-check.20",
+  "version": "1.62.0-ws-schemas-check.21",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
