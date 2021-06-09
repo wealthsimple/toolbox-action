@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.65.0",
+  "version": "1.66.0-ws-schemas-drift-ruby.1",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
