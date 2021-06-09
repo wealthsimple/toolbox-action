@@ -2407,10 +2407,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
   integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
-"@wealthsimple/actions-toolbox@1.23.0-cache-sonar.5":
-  version "1.23.0-cache-sonar.5"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.23.0-cache-sonar.5.tgz#254c3c7bce6878480b064000505fff929eee64f2"
-  integrity sha512-yUXCkSBO8mN5EBQl8wfNgYgVDvXfXFN09qfkxHew+UyHdkH6BEK4QJ/GgwU+Ezpo8o2/m2eI4C6/ABx5Ke1ADw==
+"@wealthsimple/actions-toolbox@1.23.0-cache-sonar.6":
+  version "1.23.0-cache-sonar.6"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.23.0-cache-sonar.6.tgz#352c9f6fdfe7cf841f142f31e7b20c4291b842d2"
+  integrity sha512-hVkXxB8RW3vaLLTbRJNbtZuufEkE1adAZqRnm2GU4gWzmICZppyGAOXAOEkDs2J2D89HAqiaiW8Y4bZol8e3pA==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
