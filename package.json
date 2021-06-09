@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.66.0-cache-sonar.1",
+  "version": "1.66.0-cache-sonar.2",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
