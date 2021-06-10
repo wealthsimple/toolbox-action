@@ -2411,10 +2411,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.5.tgz#6d735379f81b70b708a9c3d2196507b2a841824f"
   integrity sha512-ZSwD4EDCon2EsnPZ2/Qcigx4N2DiuBLV/rDnF04giEPFuDeBeUDdnSTyYYfX8KNic/prrJuS1vUEmAOHmj+fRg==
 
-"@wealthsimple/actions-toolbox@1.25.0-ws-schemas-drift-ruby.1":
-  version "1.25.0-ws-schemas-drift-ruby.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.25.0-ws-schemas-drift-ruby.1.tgz#dcdef71cf262731a5bfa5bbb2e9d37177ecd95c5"
-  integrity sha512-FKJGR9MOiy5u1/MRx2a3EAh3RtgINW8TxEz+0xyMXIcdSw4YYTwUQplQqLlj1AwBaMD8rBzpxDklnKpEqPa82g==
+"@wealthsimple/actions-toolbox@1.27.0-ws-schemas-drift-ruby.1":
+  version "1.27.0-ws-schemas-drift-ruby.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.27.0-ws-schemas-drift-ruby.1.tgz#fcbe9bcfee1c627b6fff56ceee3edb04513e7a4c"
+  integrity sha512-8fw4hqcWXaJ8xGmNnfH3uJkNef6JIrMUXMmIDlYKLpI1ursfsnWkLdZM/p641ohpaUZazbqrKm5nRkFKTnlBXw==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
