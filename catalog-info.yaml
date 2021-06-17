@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: toolbox-script
+  tags:
+    - typescript
+spec:
+  lifecycle: production
+  type: other
