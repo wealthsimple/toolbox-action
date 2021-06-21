@@ -2032,10 +2032,10 @@
   dependencies:
     "@octokit/openapi-types" "^7.3.2"
 
-"@octokit/webhooks-types@^3.73.1":
-  version "3.74.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@octokit/webhooks-types/-/webhooks-types-3.74.0.tgz#f28db8331f1c4460111e8533419d1e8b06edb3a7"
-  integrity sha512-yRVaBKRNt22HXwmJ5GpOfXRf98Dsz30Hm+sWoW3tCYl29RWPQMu5q2R5BE10sSqyRzIS2nBteNyHxyzcF+GWew==
+"@octokit/webhooks-types@^4.0.0":
+  version "4.0.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@octokit/webhooks-types/-/webhooks-types-4.0.1.tgz#2012caf8e85097d756a0f2d85da57ab75634bdd2"
+  integrity sha512-bwSSVhVaw18jKpciS8oNeQp/JSjjornviTzQ46Ja+6+haU4mwHqkimem5JpJ1cURhpJ92wr95nl5IdDIjdkVHA==
 
 "@opencensus/web-types@0.0.7":
   version "0.0.7"
@@ -2474,10 +2474,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.6.tgz#073c0ce8e0269210c0a9f180fb0bf949eecc20e0"
   integrity sha512-t4BoSSuyK8BZaUE0gV18V6bkFs4st7baumtFGa50dv1tMu2GDBEBF8sUZaKBdKiL6DzJ2D2+XVCwYWWDcQOYdQ==
 
-"@wealthsimple/actions-toolbox@1.28.0":
-  version "1.28.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.28.0.tgz#a7f6ee68f2c5af6bbd281a068f82b7c48496d748"
-  integrity sha512-PqXJ99J93D4FSUT+lRNoUqaBkHef/lN2jc7yCF6QJaxwNeXvWa+x71dkzO3STYPvhXHTUOhdKmrbEzNkwJWMdw==
+"@wealthsimple/actions-toolbox@1.29.0":
+  version "1.29.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.29.0.tgz#6220f86e40a2931109b830b2bc52787c571480c6"
+  integrity sha512-05wAn3VN+RhpKawJzGwVY+TMvl1dzYILC4Mqyd/6j1HvXCWXdzelhFOTgnAtq+mYW3+6mmon6EnM5wf68mHQqw==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
@@ -2491,13 +2491,14 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@octokit/rest" "^18.5.6"
-    "@octokit/webhooks-types" "^3.73.1"
+    "@octokit/webhooks-types" "^4.0.0"
     "@semantic-release/exec" "^5.0.0"
     "@types/js-yaml" "^4.0.1"
     "@types/lodash" "^4.14.169"
     "@types/semantic-release" "^17.2.0"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
     "@wealthsimple/transinator" "^3.1.9"
+    codeowners-utils "^1.0.2"
     globby "^11.0.3"
     js-yaml "^4.1.0"
     lodash "^4.17.21"
@@ -3397,6 +3398,16 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
+
+codeowners-utils@^1.0.2:
+  version "1.0.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/codeowners-utils/-/codeowners-utils-1.0.2.tgz#9d30148bf957c53d55f75df432cb1e3b4bc6ee28"
+  integrity sha512-4oLRCymV7azxGHMpM3F297D651VdwZa21hVfFCn/cOd8Fq8tFrpfpyRpSBQkaZCyFPkfOhEld9xceCF7btyiug==
+  dependencies:
+    cross-spawn "^7.0.2"
+    find-up "^4.1.0"
+    ignore "^5.1.4"
+    locate-path "^5.0.0"
 
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
