@@ -2037,10 +2037,10 @@
   dependencies:
     "@octokit/openapi-types" "^7.3.2"
 
-"@octokit/webhooks-types@^3.73.1":
-  version "3.74.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@octokit/webhooks-types/-/webhooks-types-3.74.0.tgz#f28db8331f1c4460111e8533419d1e8b06edb3a7"
-  integrity sha512-yRVaBKRNt22HXwmJ5GpOfXRf98Dsz30Hm+sWoW3tCYl29RWPQMu5q2R5BE10sSqyRzIS2nBteNyHxyzcF+GWew==
+"@octokit/webhooks-types@^4.0.0":
+  version "4.0.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@octokit/webhooks-types/-/webhooks-types-4.0.1.tgz#2012caf8e85097d756a0f2d85da57ab75634bdd2"
+  integrity sha512-bwSSVhVaw18jKpciS8oNeQp/JSjjornviTzQ46Ja+6+haU4mwHqkimem5JpJ1cURhpJ92wr95nl5IdDIjdkVHA==
 
 "@opencensus/web-types@0.0.7":
   version "0.0.7"
@@ -2479,10 +2479,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.6.tgz#073c0ce8e0269210c0a9f180fb0bf949eecc20e0"
   integrity sha512-t4BoSSuyK8BZaUE0gV18V6bkFs4st7baumtFGa50dv1tMu2GDBEBF8sUZaKBdKiL6DzJ2D2+XVCwYWWDcQOYdQ==
 
-"@wealthsimple/actions-toolbox@1.28.0":
-  version "1.28.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.28.0.tgz#a7f6ee68f2c5af6bbd281a068f82b7c48496d748"
-  integrity sha512-PqXJ99J93D4FSUT+lRNoUqaBkHef/lN2jc7yCF6QJaxwNeXvWa+x71dkzO3STYPvhXHTUOhdKmrbEzNkwJWMdw==
+"@wealthsimple/actions-toolbox@1.29.0":
+  version "1.29.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.29.0.tgz#6220f86e40a2931109b830b2bc52787c571480c6"
+  integrity sha512-05wAn3VN+RhpKawJzGwVY+TMvl1dzYILC4Mqyd/6j1HvXCWXdzelhFOTgnAtq+mYW3+6mmon6EnM5wf68mHQqw==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
@@ -2496,13 +2496,14 @@
     "@commitlint/lint" "^12.1.1"
     "@commitlint/load" "^12.1.1"
     "@octokit/rest" "^18.5.6"
-    "@octokit/webhooks-types" "^3.73.1"
+    "@octokit/webhooks-types" "^4.0.0"
     "@semantic-release/exec" "^5.0.0"
     "@types/js-yaml" "^4.0.1"
     "@types/lodash" "^4.14.169"
     "@types/semantic-release" "^17.2.0"
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
     "@wealthsimple/transinator" "^3.1.9"
+    codeowners-utils "^1.0.2"
     globby "^11.0.3"
     js-yaml "^4.1.0"
     lodash "^4.17.21"
@@ -3402,6 +3403,16 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
   integrity sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=
+
+codeowners-utils@^1.0.2:
+  version "1.0.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/codeowners-utils/-/codeowners-utils-1.0.2.tgz#9d30148bf957c53d55f75df432cb1e3b4bc6ee28"
+  integrity sha512-4oLRCymV7azxGHMpM3F297D651VdwZa21hVfFCn/cOd8Fq8tFrpfpyRpSBQkaZCyFPkfOhEld9xceCF7btyiug==
+  dependencies:
+    cross-spawn "^7.0.2"
+    find-up "^4.1.0"
+    ignore "^5.1.4"
+    locate-path "^5.0.0"
 
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
@@ -5539,13 +5550,6 @@ is-ci@^1.0.10:
   dependencies:
     ci-info "^1.5.0"
 
-is-ci@^2.0.0:
-  version "2.0.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/is-ci/-/is-ci-2.0.0.tgz#6bc6334181810e04b5c22b3d589fdca55026404c"
-  integrity sha512-YfJT7rkpQB0updsdHLGWrvhBJfcfzNNawYDNIyQXJz0IViGf75O8EBPKSdvw2rF+LGCsX4FZ8tcr3b19LcZq4w==
-  dependencies:
-    ci-info "^2.0.0"
-
 is-ci@^3.0.0:
   version "3.0.0"
   resolved "https://nexus.iad.w10external.com/repository/npm/is-ci/-/is-ci-3.0.0.tgz#c7e7be3c9d8eef7d0fa144390bd1e4b88dc4c994"
@@ -6259,19 +6263,7 @@ jest-snapshot@^27.0.4:
     pretty-format "^27.0.2"
     semver "^7.3.2"
 
-jest-util@^26.1.0:
-  version "26.6.2"
-  resolved "https://nexus.iad.w10external.com/repository/npm/jest-util/-/jest-util-26.6.2.tgz#907535dbe4d5a6cb4c47ac9b926f6af29576cbc1"
-  integrity sha512-MDW0fKfsn0OI7MS7Euz6h8HNDXVQ0gaM9uW6RjfDmd1DAFcaxX9OqIakHIqhbnmF08Cf2DLDG+ulq8YQQ0Lp0Q==
-  dependencies:
-    "@jest/types" "^26.6.2"
-    "@types/node" "*"
-    chalk "^4.0.0"
-    graceful-fs "^4.2.4"
-    is-ci "^2.0.0"
-    micromatch "^4.0.2"
-
-jest-util@^27.0.2:
+jest-util@^27.0.0, jest-util@^27.0.2:
   version "27.0.2"
   resolved "https://nexus.iad.w10external.com/repository/npm/jest-util/-/jest-util-27.0.2.tgz#fc2c7ace3c75ae561cf1e5fdb643bf685a5be7c7"
   integrity sha512-1d9uH3a00OFGGWSibpNYr+jojZ6AckOMCXV2Z4K3YXDnzpkAaXQyIpY14FOJPiUmil7CD+A6Qs+lnnh6ctRbIA==
@@ -9610,15 +9602,15 @@ triple-beam@^1.2.0, triple-beam@^1.3.0:
   resolved "https://nexus.iad.w10external.com/repository/npm/triple-beam/-/triple-beam-1.3.0.tgz#a595214c7298db8339eeeee083e4d10bd8cb8dd9"
   integrity sha512-XrHUvV5HpdLmIj4uVMxHggLbFSZYIn7HEWsqePZcI50pco+MPqJ50wMGY794X7AOOhxOBAjbkqfAbEe/QMp2Lw==
 
-ts-jest@^26.5.6:
-  version "26.5.6"
-  resolved "https://nexus.iad.w10external.com/repository/npm/ts-jest/-/ts-jest-26.5.6.tgz#c32e0746425274e1dfe333f43cd3c800e014ec35"
-  integrity sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==
+ts-jest@^27.0.3:
+  version "27.0.3"
+  resolved "https://nexus.iad.w10external.com/repository/npm/ts-jest/-/ts-jest-27.0.3.tgz#808492f022296cde19390bb6ad627c8126bf93f8"
+  integrity sha512-U5rdMjnYam9Ucw+h0QvtNDbc5+88nxt7tbIvqaZUhFrfG4+SkWhMXjejCLVGcpILTPuV+H3W/GZDZrnZFpPeXw==
   dependencies:
     bs-logger "0.x"
     buffer-from "1.x"
     fast-json-stable-stringify "2.x"
-    jest-util "^26.1.0"
+    jest-util "^27.0.0"
     json5 "2.x"
     lodash "4.x"
     make-error "1.x"
