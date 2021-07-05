@@ -2494,10 +2494,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.28.6.tgz#073c0ce8e0269210c0a9f180fb0bf949eecc20e0"
   integrity sha512-t4BoSSuyK8BZaUE0gV18V6bkFs4st7baumtFGa50dv1tMu2GDBEBF8sUZaKBdKiL6DzJ2D2+XVCwYWWDcQOYdQ==
 
-"@wealthsimple/actions-toolbox@1.30.1":
-  version "1.30.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.30.1.tgz#8178eb5943faf14fd9786068bc54d502b0f0af47"
-  integrity sha512-GSRUdTieds5+uQS5IF8iIMQl3V7P05nzNVgXp+/rkwfxQtvzU2O6tei4o4/txrWvePYGhATYo93XPdtcjS7/2g==
+"@wealthsimple/actions-toolbox@1.30.1-ruby-graphql-docs.1":
+  version "1.30.1-ruby-graphql-docs.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.30.1-ruby-graphql-docs.1.tgz#96154a604092107bafe0a195c1d5bb510bbc8313"
+  integrity sha512-4IvoQhopcYNts2Sc3Xf9Av+11UpZX6K19wHcBZtZJXAzf7OLigFvF/U+h37/GVkVJs5pE3Uev/11FBCwgj7Oqg==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
