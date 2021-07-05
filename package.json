@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.73.0",
+  "version": "1.74.0-ruby-graphql-docs.1",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
