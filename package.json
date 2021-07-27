@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.80.0",
+  "version": "1.81.0-add-tag-to-skip-deploy.1",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
