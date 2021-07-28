@@ -2544,10 +2544,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.29.0.tgz#ac23fc23f1593b05c72360108bcf6d849d2f317a"
   integrity sha512-p+sB835wOSDdgm2mgFgSOcXJF84AqZ+vBEnnGS0sm8veA92Hia7sqH0qEnqeFilPl+cXtxbdh2er+WdlfbVCZA==
 
-"@wealthsimple/actions-toolbox@1.34.1-send-github-comment-param.1":
-  version "1.34.1-send-github-comment-param.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.34.1-send-github-comment-param.1.tgz#3b189fe0f40203ff8c85fd922097fbd2961e7d67"
-  integrity sha512-IyqGyng42H+XDACfER3R+cVZ/Bbdl2DAnHNASYUR3/niBPhVxmc0COiqGRJUw3/kskIuu9L2yZEoNrCPtksMKA==
+"@wealthsimple/actions-toolbox@1.35.0-send-github-comment-param.1":
+  version "1.35.0-send-github-comment-param.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.35.0-send-github-comment-param.1.tgz#b2f3af84d624e808d257e17b42143cdbf85f4ee5"
+  integrity sha512-gjEi/4FTrA5oTDM3ATkmjlfrk/LZWGivs3uXITqnIYNb/oLWUnflxXb6kFpBbVPLpIh0CUClUBM2abl8EbJ9lg==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
