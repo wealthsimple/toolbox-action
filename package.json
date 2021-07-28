@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.82.0-send-github-comment-param.2",
+  "version": "1.82.0-send-github-comment-param.3",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
