@@ -33,6 +33,7 @@ inputs:
   github_api_token:
     required: false
     description: Github API token for accessing Wealthsimple private repos
+    default: ${{ github.token }}
   github_username:
     required: false
     description: Github username for creating tags / comments
