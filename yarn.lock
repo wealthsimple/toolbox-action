@@ -2289,6 +2289,13 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/fs-extra@^9.0.12":
+  version "9.0.12"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@types/fs-extra/-/fs-extra-9.0.12.tgz#9b8f27973df8a7a3920e8461517ebf8a7d4fdfaf"
+  integrity sha512-I+bsBr67CurCGnSenZZ7v94gd3tc3+Aj2taxMT4yu4ABLuOgOjeFxX3dokG24ztSRg5tnT00sL8BszO7gSMoIw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://nexus.iad.w10external.com/repository/npm/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"
@@ -2544,10 +2551,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.29.0.tgz#ac23fc23f1593b05c72360108bcf6d849d2f317a"
   integrity sha512-p+sB835wOSDdgm2mgFgSOcXJF84AqZ+vBEnnGS0sm8veA92Hia7sqH0qEnqeFilPl+cXtxbdh2er+WdlfbVCZA==
 
-"@wealthsimple/actions-toolbox@1.35.0":
-  version "1.35.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.35.0.tgz#e9068d00e07a8be0e953297abf031ad23ce34337"
-  integrity sha512-0Ke4bZPtQteCz8Es/hvbDGpn8apQlMZaR6vKXIYvPGOqeWsRnC3ShSvMOrfYZmCmgKnfzBW7fXlaKnQ5JHEvRw==
+"@wealthsimple/actions-toolbox@1.36.0":
+  version "1.36.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.36.0.tgz#eb092ca38a0f2d60d7abb6498c6f1538500f7539"
+  integrity sha512-ZSVtPTYl7ZyYJQP5Mit18i6qNv1QEggsSaHYNudAJwXfxmV2qbvyMk/xNGImCo7GBTK6gUtTxyt0A/c+CZsFKw==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.2.6"
@@ -2563,6 +2570,7 @@
     "@octokit/rest" "^18.5.6"
     "@octokit/webhooks-types" "^4.0.0"
     "@semantic-release/exec" "^5.0.0"
+    "@types/fs-extra" "^9.0.12"
     "@types/js-yaml" "^4.0.1"
     "@types/lodash" "^4.14.169"
     "@types/semantic-release" "^17.2.0"
@@ -2570,6 +2578,7 @@
     "@wealthsimple/git-commitlint-hook" "^1.0.1"
     "@wealthsimple/transinator" "^3.1.9"
     codeowners-utils "^1.0.2"
+    fs-extra "^10.0.0"
     globby "^11.0.3"
     js-yaml "^4.1.0"
     lodash "^4.17.21"
@@ -4883,6 +4892,15 @@ fs-extra@8.1.0:
     graceful-fs "^4.2.0"
     jsonfile "^4.0.0"
     universalify "^0.1.0"
+
+fs-extra@^10.0.0:
+  version "10.0.0"
+  resolved "https://nexus.iad.w10external.com/repository/npm/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
+  integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
 
 fs-extra@^9.0.0:
   version "9.1.0"
