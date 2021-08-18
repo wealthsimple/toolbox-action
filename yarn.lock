@@ -2576,10 +2576,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.29.1.tgz#d62b1b9508a2bc7a822791ff6a6eb3e08a2cfdd7"
   integrity sha512-92d2AApJtkpampMqKgfqWbYkuFvqRFs8kPkKLTbesSB9RVwWfiI3i6mgBxtZgMV9iRuLPVZ+OBNocKHXZSRj6Q==
 
-"@wealthsimple/actions-toolbox@1.38.0-cache-licenses.1":
-  version "1.38.0-cache-licenses.1"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.38.0-cache-licenses.1.tgz#4b1ba006e24143e5425c119c06a0bf5f068028a3"
-  integrity sha512-46xLB6kp+yznfH/SAIyRD2XjEILWS6U3WmDAmj6f3mx68/nej+rfB00qmw38LhGiA2tqR1pCXtK8Kn7o+I37Dg==
+"@wealthsimple/actions-toolbox@1.38.0-cache-licenses.2":
+  version "1.38.0-cache-licenses.2"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.38.0-cache-licenses.2.tgz#9ceef4b707777e8069801fb137f8dd142cb4437c"
+  integrity sha512-Q6gP+m22B8/ZDuaqrYvxka/DUIXWUZR+6QecswQFFjzmlXl5Z0JwgvsJnoRTp1mJo9HvzhUv5J6ikhsoq+UqXg==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.4.0"
