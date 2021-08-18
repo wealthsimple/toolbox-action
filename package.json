@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.92.0",
+  "version": "1.93.0-licensed-cache.1",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
