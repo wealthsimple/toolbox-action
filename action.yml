@@ -18,6 +18,10 @@ inputs:
   dockerfile_path:
     required: false
     description: Path to the Dockerfile to build
+  docs_strict:
+    required: false
+    description: Enable strict checking when building docs site
+    default: false
   enable_datadog:
     required: false
     description: Enable Datadog tracing for tests
