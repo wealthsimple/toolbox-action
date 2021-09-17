@@ -28,6 +28,9 @@ inputs:
   enable_knapsack:
     required: false
     description: Enable Knapsack for RSpec tests
+  force_deploy:
+    required: false
+    description: Force deploy on a non-main branch
   image_name:
     required: false
     description: Name of the Docker image to build
