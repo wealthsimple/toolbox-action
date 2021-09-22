@@ -1,6 +1,6 @@
 {
   "name": "toolbox-script",
-  "version": "1.107.0-add-yarn-deduplicate.1",
+  "version": "1.107.0-add-yarn-deduplicate.2",
   "private": true,
   "description": "Wealthsimple Toolbox Script Action",
   "main": "lib/main.js",
