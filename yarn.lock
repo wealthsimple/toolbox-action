@@ -2599,10 +2599,10 @@
   resolved "https://nexus.iad.w10external.com/repository/npm/@vercel/ncc/-/ncc-0.31.1.tgz#9346c7e59326f5eeac75c0286e47df94c2d6d8f7"
   integrity sha512-g0FAxwdViI6UzsiVz5HssIHqjcPa1EHL6h+2dcJD893SoCJaGdqqgUF09xnMW6goWnnhbLvgiKlgJWrJa+7qYA==
 
-"@wealthsimple/actions-toolbox@1.41.0":
-  version "1.41.0"
-  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.41.0.tgz#ac25039487ec9a557b3c7382093eced1517a73a9"
-  integrity sha512-DDCFpRDgrFRS9h4D80I+kX067tKlrghjWExBB3XrGzKlcNKYyxs7iyUJV7j7e223sD/7GKFyQCGe2/CKPg2vGw==
+"@wealthsimple/actions-toolbox@1.42.0-add-yarn-deduplicate.1":
+  version "1.42.0-add-yarn-deduplicate.1"
+  resolved "https://nexus.iad.w10external.com/repository/npm/@wealthsimple/actions-toolbox/-/actions-toolbox-1.42.0-add-yarn-deduplicate.1.tgz#b070a70a069e8767e2bd8583b6592f920b09254a"
+  integrity sha512-u2Teq8BkBLMZBgU9hGbp6rK4MJQY97+Wkr7G8Q4BvBSQvzhXpTtlzUI0CK9tJev+xgCRQiiiQdDEurdZvmjRoA==
   dependencies:
     "@actions/cache" "^1.0.7"
     "@actions/core" "^1.5.0"
